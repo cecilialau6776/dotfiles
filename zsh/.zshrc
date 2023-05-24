@@ -1,8 +1,6 @@
 # If you come from bash you might have to change your $PATH.
-export GOPATH="$(go env GOPATH)"
 export PATH="${PATH}:${GOPATH}/bin"
 export PATH=$HOME/.cargo/bin:$HOME/bin:/usr/local/bin:$HOME/.local/bin:$PATH
-export PATH=$HOME/sonarqube/sonarqube/bin/linux-x86-64:$HOME/sonarqube/sonarscanner/bin:$PATH
 export EDITOR=vim
 
 # Path to your oh-my-zsh installation.
@@ -81,7 +79,7 @@ plugins=(
 
 source $ZSH/oh-my-zsh.sh
 source $HOME/dotfiles/zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-source /usr/share/nvm/init-nvm.sh
+# source /usr/share/nvm/init-nvm.sh
 
 # User configuration
 
