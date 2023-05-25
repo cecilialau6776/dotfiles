@@ -1,6 +1,7 @@
 # If you come from bash you might have to change your $PATH.
 export PATH="${PATH}:${GOPATH}/bin"
 export PATH=$HOME/.cargo/bin:$HOME/bin:/usr/local/bin:$HOME/.local/bin:$PATH
+export TERM=xterm-256color
 export EDITOR=vim
 
 # Path to your oh-my-zsh installation.
