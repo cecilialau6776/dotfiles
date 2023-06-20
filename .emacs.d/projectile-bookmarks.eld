@@ -1,0 +1,1 @@
+("~/nurikabe-solver/" "~/" "~/.config/awesome/")
