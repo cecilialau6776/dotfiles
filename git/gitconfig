@@ -1,0 +1,10 @@
+[user]
+	email = cecilialau6776@gmail.com
+	name = Cecilia Lau
+[core]
+	editor = vim
+	excludesFile = ~/dotfiles/git/gitignore_global
+[submodule]
+	recurse = true
+[init]
+	defaultBranch = main

@@ -1,11 +1,19 @@
+if [[ -f "$HOME/.zshenv" ]]; then
+  source ~/.zshenv
+fi
+
 # Fix for TRAMP
 [ $TERM = "dumb" ] && unsetopt zle && PS1='$ '
 
 # If you come from bash you might have to change your $PATH.
 export PATH="${PATH}:${GOPATH}/bin"
 export PATH=$HOME/.cargo/bin:$HOME/bin:/usr/local/bin:$HOME/.local/bin:$PATH
-export TERM=xterm-256color
 export EDITOR=vim
+
+# pnpm
+export PNPM_HOME="/home/pixel/.local/share/pnpm"
+export PATH="$PNPM_HOME:$PATH"
+# pnpm end
 
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/dotfiles/zsh/.oh-my-zsh"
@@ -147,3 +155,4 @@ alias se="sudoedit"
 if [ -z "${DISPLAY}" ] && [ "${XDG_VTNR}" -eq 1 ]; then
     exec startx
 fi
+
