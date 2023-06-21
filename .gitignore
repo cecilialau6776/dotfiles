@@ -1,4 +1,6 @@
 .emacs.d/emacs-livedown
 .emacs.d/bookmarks
 .emacs.d/.lsp-session-v1
+.emacs.d/elpa/*
+.emacs.d/url/*
 .cache
