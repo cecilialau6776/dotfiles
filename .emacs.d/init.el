@@ -153,7 +153,6 @@ re-downloaded in order to locate PACKAGE."
 (add-hook 'elpy-mode-hook #'lsp)
 (add-hook 'java-mode-hook #'lsp)
 
-
 ;; Rust
 (require-package 'rust-mode)
 (setq lsp-rust-analyzer-server-display-inlay-hints t
