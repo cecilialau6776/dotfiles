@@ -142,6 +142,7 @@ alias kbf="bash ~/kbf.sh"
 alias xc="xclip -selection clipboard"
 alias se="sudoedit"
 alias emacs="TERM=xterm-24bit emacs"
+alias purgeemacstemp="find . -name '*~' -delete"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
 
