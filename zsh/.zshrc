@@ -121,22 +121,16 @@ unsetopt HIST_VERIFY
 #
 # Example aliases
 alias zshconfig="vim ~/.zshrc && . ~/.zshrc"
-alias discord="~/.local/share/DiscordCanary/DiscordCanary"
-alias discords="~/.local/share/Discord/Discord"
 alias sl="ls"
 alias nano="vim"
 alias vi="vim"
 alias code="vscodium"
-alias prettier="~/hh3/node_modules/.bin/prettier"
 alias clockin="echo 'In ' \`date\` >> ~/time.log"
 alias clockout="echo 'Out' \`date\` >> ~/time.log"
 alias pip="pip3"
 alias lh='command ls -hAl --color=auto -v'
-alias updatekitty="curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin"
 alias :q="exit"
 alias i="insect"
-alias hh3config="vim ~/.config/hh3/discordcanary.json"
-alias neofetch="fastfetch"
 alias chom="echo 'chom'"
 alias kbf="bash ~/kbf.sh"
 alias xc="xclip -selection clipboard"
