@@ -34,7 +34,7 @@ re-downloaded in order to locate PACKAGE."
 (setq-default tab-width standard-indent)
 
 (setq-default rust-indent-offset 2)
-(setq-default js-indent-level 2)
+(setq-default js-indent-level 4)
 (setq-default c-default-style "linux")
 
 
@@ -62,10 +62,15 @@ re-downloaded in order to locate PACKAGE."
 (setq inhibit-startup-screen t)
 (setq visible-bell 1)
 (setq line-number-mode t)
+(setq-default doc-view-resolution 300)
+(setq-default doc-view-continuous t)
 (scroll-bar-mode -1)
 (menu-bar-mode -1)
 (tool-bar-mode -1)
-
+(prefer-coding-system 'utf-8)
+;; Colors in compilaiton window
+(require-package 'ansi-color)
+(add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
 
 ;; Shell-pop
 (setq shell-pop-shell-type (quote ("vterm" "*vterm*" (lambda nil (vterm shell-pop-term-shell)))))
@@ -134,13 +139,14 @@ re-downloaded in order to locate PACKAGE."
 
 
 ;; LSP & Company
-(setq company-idle-delay 0
-      company-minimum-prefix-length 1)
+(setq company-idle-delay 1
+      company-minimum-prefix-length 0)
 (require-package 'lsp-mode)
 (require-package 'lsp-ui)
 (require-package 'flycheck)
 (require-package 'company)
 (require-package 'dap-mode)
+(yas-global-mode)
 ;; LSP over TRAMP
 (lsp-register-client
     (make-lsp-client :new-connection (lsp-tramp-connection "pylsp")
@@ -152,6 +158,8 @@ re-downloaded in order to locate PACKAGE."
 (add-hook 'rust-mode-hook #'lsp)
 (add-hook 'elpy-mode-hook #'lsp)
 (add-hook 'java-mode-hook #'lsp)
+(add-hook 'js2-mode-hook #'lsp)
+(add-hook 'csharp-mode-hook #'lsp)
 
 ;; Rust
 (require-package 'rust-mode)
@@ -162,20 +170,35 @@ re-downloaded in order to locate PACKAGE."
                               (when (eq 'rust-mode major-mode)
                                 (lsp-format-buffer))))
 
+;; C# :(
+(add-hook 'before-save-hook (lambda()
+                              (when (eq 'csharp-mode major-mode)
+                                (lsp-format-buffer))))
+
 ;; Python
 (require-package 'elpy)
 (elpy-enable)
-;; (add-hook 'elpy-mode-hook (lambda ()
-;;                             (add-hook 'before-save-hook
-;;                                       'elpy-format-code nil t)))
+(add-hook 'elpy-mode-hook (lambda ()
+                            (add-hook 'before-save-hook
+                                      'python-black-buffer nil t)))
+(when (load "flycheck" t t)
+  (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
+  (add-hook 'elpy-mode-hook 'flycheck-mode))
 
 ;; Java
 (require-package 'lsp-java)
 
+;; Auto-insert mode
+(auto-insert-mode)
+(setq auto-insert-directory "~/.emacs.d/auto-insert/")
+(setq auto-insert-query nil)
+(define-auto-insert "\\.tex$" "template.tex")
+(define-auto-insert "\\.py$" "template.py")
+
 ;; JavaScript
-;; (require-package 'js2-mode)
+(require-package 'js2-mode)
 (require-package 'prettier-js)
-;; (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
 (add-hook 'js-mode-hook 'prettier-js-mode)
 
 ;; Livedown (live markdown preview)
@@ -188,7 +211,10 @@ re-downloaded in order to locate PACKAGE."
 ;; Vimish Fold
 (require 'vimish-fold)
 (define-key evil-normal-state-map (kbd "z f") 'vimish-fold)
+(define-key evil-normal-state-map (kbd "z r") 'vimish-fold-refold)
+(define-key evil-normal-state-map (kbd "z u") 'vimish-fold-unfold)
 (define-key evil-normal-state-map (kbd "z d") 'vimish-fold-delete)
+(define-key evil-normal-state-map (kbd "z z") 'vimish-fold-toggle)
 
 
 ;; Indent highlight guides
@@ -211,9 +237,10 @@ re-downloaded in order to locate PACKAGE."
  '(auth-source-save-behavior nil)
  '(helm-minibuffer-history-key "M-p")
  '(highlight-indent-guides-method 'character)
- '(js-indent-level 2 t)
+ '(js-indent-level 2)
  '(package-selected-packages
-   '(elpy python-black projectile pyvenv dotenv-mode evil-collection pdf-tools auctex-latexmk auctex-lua auctex lua-mode evil-surround highlight-indent-guides vimish-fold js2-mode prettier-js dap-mode lsp-java shell-pop mips-mode lsp-mode rust-mode winum treemacs-evil treemacs helm ido-vertical-mode evil))
+   '(csv-mode magit dockerfile-mode racket-mode yaml-mode ng2-mode php-mode cuda-mode elpy python-black projectile pyvenv dotenv-mode evil-collection pdf-tools auctex-latexmk auctex-lua auctex lua-mode evil-surround highlight-indent-guides vimish-fold js2-mode prettier-js dap-mode lsp-java shell-pop mips-mode lsp-mode rust-mode winum treemacs-evil treemacs helm ido-vertical-mode evil))
+ '(prettier-js-args '("--tab-width 4"))
  '(warning-suppress-types '((comp))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
