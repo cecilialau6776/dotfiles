@@ -1,5 +1,0 @@
-INDEX VERSION 1.131+/home/pixel/.emacs.d/workspace/.metadata/.plugins/org.eclipse.jdt.core
-3842426239.index
-374343959.index
-4010541665.index
-1865797976.index

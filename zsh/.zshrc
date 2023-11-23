@@ -1,9 +1,9 @@
+# Fix for TRAMP
+[ $TERM = "dumb" ] && unsetopt zle && PS1='$ '
+
 if [[ -f "$HOME/.zshenv" ]]; then
   source ~/.zshenv
 fi
-
-# Fix for TRAMP
-[ $TERM = "dumb" ] && unsetopt zle && PS1='$ '
 
 # If you come from bash you might have to change your $PATH.
 export PATH="${PATH}:${GOPATH}/bin"

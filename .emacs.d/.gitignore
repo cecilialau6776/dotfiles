@@ -1,0 +1,10 @@
+.lsp-session-v1
+\#*\#
+session.*
+*~
+auto-save-list/*
+elpa/*
+url/*
+workspace
+eclipse.jdt.ls
+games/

@@ -62,7 +62,7 @@ re-downloaded in order to locate PACKAGE."
 (setq inhibit-startup-screen t)
 (setq visible-bell 1)
 (setq line-number-mode t)
-(setq-default doc-view-resolution 300)
+(setq-default doc-view-resolution 200)
 (setq-default doc-view-continuous t)
 (scroll-bar-mode -1)
 (menu-bar-mode -1)
