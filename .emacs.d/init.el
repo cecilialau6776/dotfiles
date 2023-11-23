@@ -24,6 +24,7 @@ re-downloaded in order to locate PACKAGE."
 (require-package 'undo-tree)
 (global-undo-tree-mode)
 (evil-set-undo-system 'undo-tree)
+(require-package 'evil-collection)
 (evil-collection-init)
 
 
@@ -146,6 +147,7 @@ re-downloaded in order to locate PACKAGE."
 (require-package 'flycheck)
 (require-package 'company)
 (require-package 'dap-mode)
+(require-package 'yasnippet)
 (yas-global-mode)
 ;; LSP over TRAMP
 (lsp-register-client
@@ -209,7 +211,7 @@ re-downloaded in order to locate PACKAGE."
         (setq livedown-autostart 1)))
 
 ;; Vimish Fold
-(require 'vimish-fold)
+(require-package 'vimish-fold)
 (define-key evil-normal-state-map (kbd "z f") 'vimish-fold)
 (define-key evil-normal-state-map (kbd "z r") 'vimish-fold-refold)
 (define-key evil-normal-state-map (kbd "z u") 'vimish-fold-unfold)
@@ -236,7 +238,7 @@ re-downloaded in order to locate PACKAGE."
  ;; If there is more than one, they won't work right.
  '(auth-source-save-behavior nil)
  '(helm-minibuffer-history-key "M-p")
- '(highlight-indent-guides-method 'character)
+ '(highlight-indent-guides-method 'character t)
  '(js-indent-level 2)
  '(package-selected-packages
    '(csv-mode magit dockerfile-mode racket-mode yaml-mode ng2-mode php-mode cuda-mode elpy python-black projectile pyvenv dotenv-mode evil-collection pdf-tools auctex-latexmk auctex-lua auctex lua-mode evil-surround highlight-indent-guides vimish-fold js2-mode prettier-js dap-mode lsp-java shell-pop mips-mode lsp-mode rust-mode winum treemacs-evil treemacs helm ido-vertical-mode evil))
