@@ -7,7 +7,7 @@ git submodule update
 # make symlinks
 ln -s $HOME/dotfiles/zsh/.zshrc $HOME/.zshrc || true
 ln -s $HOME/dotfiles/.tmux.conf $HOME/.tmux.conf || true
-ln -s $HOME/dotfiles/.emacs.d $HOME/.emacs.d || true
+ln -s $HOME/dotfiles/.emacs.d/ $HOME/.emacs.d || true
 ln -s $HOME/dotfiles/git/gitconfig $HOME/.gitconfig || true
 
 # define `xterm-24bit` for using emacs through ssh
