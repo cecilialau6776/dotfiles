@@ -224,6 +224,8 @@ re-downloaded in order to locate PACKAGE."
 (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
 (setq highlight-indent-guides-method 'character)
 
+(setq backup-directory-alist
+        `(("." . ,(concat user-emacs-directory "autosaves"))))
 
 ;; Ephemeral theme
 (require-package 'doom-themes)
