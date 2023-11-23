@@ -1,5 +1,5 @@
 # Fix for TRAMP
-[ $TERM = "dumb" ] && unsetopt zle && PS1='$ '
+[ $TERM = "dumb" ] && unsetopt zle && PS1='$ ' && return
 
 if [[ -f "$HOME/.zshenv" ]]; then
   source ~/.zshenv
