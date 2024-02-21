@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Python func def with docstring
+# key: defd
+# --
+def ${1:name}($2):
+    \"\"\"$3
+    ${2:$(mapcar (lambda (x)
+             (split-string x "[[:blank:]]*=[[:blank:]]*" t))
+          (split-string yas-text "[[:blank:]]*,[[:blank:]]*" t))}
+    Returns:
+        ${5:test}
+    \"\"\"
+    $0

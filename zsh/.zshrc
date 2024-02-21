@@ -39,7 +39,7 @@ ZSH_THEME="agnoster"
 
 # Uncomment one of the following lines to change the auto-update behavior
 # zstyle ':omz:update' mode disabled  # disable automatic updates
-# zstyle ':omz:update' mode auto      # update automatically without asking
+zstyle ':omz:update' mode auto      # update automatically without asking
 # zstyle ':omz:update' mode reminder  # just remind me to update when it's time
 
 # Uncomment the following line to change how often to auto-update (in days).
@@ -130,25 +130,18 @@ alias clockout="echo 'Out' \`date\` >> ~/time.log"
 alias pip="pip3"
 alias lh='command ls -hAl --color=auto -v'
 alias :q="exit"
-alias i="insect"
+alias xit="exit"
 alias chom="echo 'chom'"
 alias kbf="bash ~/kbf.sh"
 alias xc="xclip -selection clipboard"
 alias se="sudoedit"
 alias emacs="TERM=xterm-24bit emacs -nw"
 alias purgeemacstemp="find . -name '*~' -delete"
+alias sv="source .venv/bin/activate"
+alias de="deactivate"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-
-
-# Load Angular CLI autocompletion.
-# source <(ng completion script)
-
-# export NVM_DIR="$HOME/.nvm"
-# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-# [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 # Run startx on login
 if [ -z "${DISPLAY}" ] && [ "${XDG_VTNR}" -eq 1 ]; then
     exec startx
 fi
-

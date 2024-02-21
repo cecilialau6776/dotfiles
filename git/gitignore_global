@@ -46,3 +46,6 @@ flycheck_*.el
 
 # for my cursed testing scripts
 .pixel_compile.sh
+
+# because flake8 doesn't support global configs :/
+# .flake8

@@ -16,7 +16,6 @@ re-downloaded in order to locate PACKAGE."
         (package-refresh-contents)
         (require-package package min-version t)))))
 
-
 ;; Evil
 (setq evil-want-keybinding nil)
 (require-package 'evil)
@@ -61,7 +60,11 @@ re-downloaded in order to locate PACKAGE."
 (require-package 'vterm)
 (setq vterm-shell 'zsh)
 (setq inhibit-startup-screen t)
-(setq visible-bell 1)
+(setq visible-bell nil
+      ring-bell-function 'flash-mode-line)
+(defun flash-mode-line()
+  (invert-face 'mode-line)
+  (run-with-timer 0.1 nil #'invert-face 'mode-line))
 (setq line-number-mode t)
 (setq-default doc-view-resolution 200)
 (setq-default doc-view-continuous t)
@@ -69,9 +72,12 @@ re-downloaded in order to locate PACKAGE."
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (prefer-coding-system 'utf-8)
+(setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo")))
 ;; Colors in compilaiton window
 (require-package 'ansi-color)
 (add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
+(define-coding-system-alias 'UTF-8 'utf-8)
+
 
 ;; Shell-pop
 (setq shell-pop-shell-type (quote ("vterm" "*vterm*" (lambda nil (vterm shell-pop-term-shell)))))
@@ -119,7 +125,12 @@ re-downloaded in order to locate PACKAGE."
 (define-key evil-normal-state-map (kbd "SPC c i") (lambda()
                                                     (interactive)
                                                     (indent-region (point-min) (point-max) nil)))
+;; shell-pop
 (define-key evil-normal-state-map (kbd "SPC '") 'shell-pop)
+;; vterm
+(define-key vterm-mode-map (kbd "s-c") #'vterm-send-C-c)
+(define-key vterm-mode-map (kbd "s-<backspace>")
+    (lambda () (interactive) (vterm-send-key (kbd "C-w"))))
 
 
 
@@ -152,7 +163,7 @@ re-downloaded in order to locate PACKAGE."
 ;; LSP over TRAMP
 (lsp-register-client
     (make-lsp-client :new-connection (lsp-tramp-connection "pylsp")
-                     :major-modes '(python-mode)
+                     :major-modes '(python-ts-mode)
                      :remote? t
                      :server-id 'pylsp-remote))
 ;; (evil-define-key 'normal lsp-mode-map (kbd "SPC l") lsp-command-map)
@@ -179,10 +190,18 @@ re-downloaded in order to locate PACKAGE."
 
 ;; Python
 (require-package 'elpy)
+(require-package 'auto-virtualenv)
+(require-package 'py-isort)
+(add-to-list 'auto-mode-alist '("\\.py\\'" . python-ts-mode))
 (elpy-enable)
 (add-hook 'elpy-mode-hook (lambda ()
                             (add-hook 'before-save-hook
                                       'python-black-buffer nil t)))
+(add-hook 'python-ts-mode-hook #'elpy-mode)
+(add-hook 'python-ts-mode-hook 'auto-virtualenv-set-virtualenv)
+(add-hook 'before-save-hook (lambda()
+                              (when (eq 'python-ts-mode major-mode)
+                                (py-isort-buffer))))
 (when (load "flycheck" t t)
   (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
   (add-hook 'elpy-mode-hook 'flycheck-mode))
@@ -196,6 +215,8 @@ re-downloaded in order to locate PACKAGE."
 (setq auto-insert-query nil)
 (define-auto-insert "\\.tex$" "template.tex")
 (define-auto-insert "\\.py$" "template.py")
+(define-auto-insert "^.flake8$" ".flake8")
+(define-auto-insert "^pyproject.toml$" "pyproject.toml")
 
 ;; JavaScript
 (require-package 'js2-mode)
@@ -227,11 +248,33 @@ re-downloaded in order to locate PACKAGE."
 (setq backup-directory-alist
         `(("." . ,(concat user-emacs-directory "autosaves"))))
 
+;; Treesitter
+(setq treesit-language-source-alist
+   '((bash "https://github.com/tree-sitter/tree-sitter-bash")
+     (cmake "https://github.com/uyha/tree-sitter-cmake")
+     (css "https://github.com/tree-sitter/tree-sitter-css")
+     (elisp "https://github.com/Wilfred/tree-sitter-elisp")
+     (go "https://github.com/tree-sitter/tree-sitter-go")
+     (html "https://github.com/tree-sitter/tree-sitter-html")
+     (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
+     (json "https://github.com/tree-sitter/tree-sitter-json")
+     (make "https://github.com/alemuller/tree-sitter-make")
+     (markdown "https://github.com/ikatyang/tree-sitter-markdown")
+     (python "https://github.com/tree-sitter/tree-sitter-python")
+     (toml "https://github.com/tree-sitter/tree-sitter-toml")
+     (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
+     (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
+     (yaml "https://github.com/ikatyang/tree-sitter-yaml")))
+
 ;; Ephemeral theme
 (require-package 'doom-themes)
 (setq doom-themes-enable-bold t)
 (setq doom-themes-enable-italic t)
 (load-theme 'doom-ephemeral t)
+
+
+
+
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -240,10 +283,10 @@ re-downloaded in order to locate PACKAGE."
  ;; If there is more than one, they won't work right.
  '(auth-source-save-behavior nil)
  '(helm-minibuffer-history-key "M-p")
- '(highlight-indent-guides-method 'character t)
+ '(highlight-indent-guides-method 'character)
  '(js-indent-level 2)
  '(package-selected-packages
-   '(csv-mode magit dockerfile-mode racket-mode yaml-mode ng2-mode php-mode cuda-mode elpy python-black projectile pyvenv dotenv-mode evil-collection pdf-tools auctex-latexmk auctex-lua auctex lua-mode evil-surround highlight-indent-guides vimish-fold js2-mode prettier-js dap-mode lsp-java shell-pop mips-mode lsp-mode rust-mode winum treemacs-evil treemacs helm ido-vertical-mode evil))
+   '(auto-virtualenv mode-line-bell csv-mode magit dockerfile-mode racket-mode yaml-mode ng2-mode php-mode cuda-mode elpy python-black projectile pyvenv dotenv-mode evil-collection pdf-tools auctex-latexmk auctex-lua auctex lua-mode evil-surround highlight-indent-guides vimish-fold js2-mode prettier-js dap-mode lsp-java shell-pop mips-mode lsp-mode rust-mode winum treemacs-evil treemacs helm ido-vertical-mode evil))
  '(prettier-js-args '("--tab-width 4"))
  '(warning-suppress-types '((comp))))
 (custom-set-faces

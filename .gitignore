@@ -4,4 +4,6 @@
 .emacs.d/elpa/*
 .emacs.d/elpy/*
 .emacs.d/url/*
+.emacs.d/eln-cache/*
+.emacs.d/undo/*
 .cache
