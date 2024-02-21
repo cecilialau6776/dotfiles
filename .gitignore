@@ -1,9 +1,1 @@
-.emacs.d/emacs-livedown
-.emacs.d/bookmarks
-.emacs.d/.lsp-session-v1
-.emacs.d/elpa/*
-.emacs.d/elpy/*
-.emacs.d/url/*
-.emacs.d/eln-cache/*
-.emacs.d/undo/*
 .cache

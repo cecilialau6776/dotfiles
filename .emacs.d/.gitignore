@@ -3,9 +3,15 @@
 session.*
 *~
 auto-save-list/*
-elpa/*
-url/*
+elpa/
+elpy/
+url/
 workspace
 eclipse.jdt.ls
 games/
 autosaves/
+tree-sitter/
+bookmarks
+eln-cache/
+undo/
+emacs-livedown
