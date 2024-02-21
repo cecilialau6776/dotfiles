@@ -34,7 +34,9 @@ re-downloaded in order to locate PACKAGE."
 (setq-default tab-width standard-indent)
 
 (setq-default rust-indent-offset 2)
+(setq-default typescript-indent-level 2)
 (setq-default js-indent-level 4)
+(setq-default lua-indent-level 4)
 (setq-default c-default-style "linux")
 
 
@@ -159,6 +161,7 @@ re-downloaded in order to locate PACKAGE."
 (require-package 'company)
 (require-package 'dap-mode)
 (require-package 'yasnippet)
+(global-flycheck-mode)
 (yas-global-mode)
 ;; LSP over TRAMP
 (lsp-register-client
@@ -172,7 +175,11 @@ re-downloaded in order to locate PACKAGE."
 (add-hook 'elpy-mode-hook #'lsp)
 (add-hook 'java-mode-hook #'lsp)
 (add-hook 'js2-mode-hook #'lsp)
+(add-hook 'prolog-mode-hook #'lsp)
+(add-hook 'web-mode-hook #'lsp)
 (add-hook 'csharp-mode-hook #'lsp)
+(add-hook 'c-mode-hook #'lsp)
+(add-hook 'typescript-mode-hook #'lsp)
 
 ;; Rust
 (require-package 'rust-mode)
@@ -181,6 +188,11 @@ re-downloaded in order to locate PACKAGE."
       lsp-completion-enable-additional-text-edit t)
 (add-hook 'before-save-hook (lambda()
                               (when (eq 'rust-mode major-mode)
+                                (lsp-format-buffer))))
+
+;; C :)
+(add-hook 'before-save-hook (lambda()
+                              (when (eq 'c-mode major-mode)
                                 (lsp-format-buffer))))
 
 ;; C# :(
@@ -192,6 +204,7 @@ re-downloaded in order to locate PACKAGE."
 (require-package 'elpy)
 (require-package 'auto-virtualenv)
 (require-package 'py-isort)
+(require-package 'python-black)
 (add-to-list 'auto-mode-alist '("\\.py\\'" . python-ts-mode))
 (elpy-enable)
 (add-hook 'elpy-mode-hook (lambda ()
@@ -202,12 +215,28 @@ re-downloaded in order to locate PACKAGE."
 (add-hook 'before-save-hook (lambda()
                               (when (eq 'python-ts-mode major-mode)
                                 (py-isort-buffer))))
-(when (load "flycheck" t t)
-  (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
-  (add-hook 'elpy-mode-hook 'flycheck-mode))
 
 ;; Java
 (require-package 'lsp-java)
+
+;; Lua
+(require-package 'lua-mode)
+(add-to-list 'auto-mode-alist '("\\.lua\\'" . lua-mode))
+
+;; Prolog (fuck you perl)
+(lsp-register-client
+  (make-lsp-client
+   :new-connection
+   (lsp-stdio-connection (list "swipl"
+                               "-g" "use_module(library(lsp_server))."
+                               "-g" "lsp_server:main"
+                               "-t" "halt"
+                               "--" "stdio"))
+   :major-modes '(prolog-mode)
+   :priority 1
+   :multi-root t
+   :server-id 'prolog-ls))
+(add-to-list 'auto-mode-alist '("\\.pl\\'" . prolog-mode))
 
 ;; Auto-insert mode
 (auto-insert-mode)
@@ -215,14 +244,49 @@ re-downloaded in order to locate PACKAGE."
 (setq auto-insert-query nil)
 (define-auto-insert "\\.tex$" "template.tex")
 (define-auto-insert "\\.py$" "template.py")
-(define-auto-insert "^.flake8$" ".flake8")
-(define-auto-insert "^pyproject.toml$" "pyproject.toml")
+(define-auto-insert "^\\.flake8$" ".flake8")
+(define-auto-insert "^pyproject\\.toml$" "pyproject.toml")
+(define-auto-insert "\\.c$" "template.c")
 
 ;; JavaScript
-(require-package 'js2-mode)
+;; (require-package 'js2-mode)
+(require-package 'rjsx-mode)
 (require-package 'prettier-js)
-(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+(add-to-list 'auto-mode-alist '("\\.js\\'" . rjsx-mode))
 (add-hook 'js-mode-hook 'prettier-js-mode)
+
+;; React
+(require-package 'typescript-mode)
+(require-package 'web-mode)
+(require-package 'tide)
+(defun setup-tide-mode ()
+  (interactive)
+  (tide-setup)
+  (flycheck-mode +1)
+  (tide-hl-identifier-mode +1)
+  (setq flycheck-check-syntax-automatically '(save mode-enabled))
+  (eldoc-mode +1)
+  (setq web-mode-enable-auto-quoting nil)
+  (setq web-mode-markup-indent-offset 2)
+  (setq web-mode-code-indent-offset 2)
+  (setq web-mode-attr-indent-offset 2)
+  (setq web-mode-attr-value-indent-offset 2)
+  (company-mode +1))
+(setq company-tooltip-align-annotations t)
+(add-hook 'before-save-hook 'tide-format-before-save)
+(add-hook 'typescript-mode-hook #'setup-tide-mode)
+(add-hook 'rjsx-mode-hook 'tide-setup-hook)
+(add-hook 'web-mode-hook 'tide-setup-hook
+          (lambda () (pcase (file-name-extension buffer-file-name)
+                  ("tsx" ('tide-setup-hook))
+                  (_ (my-web-mode-hook)))))
+(flycheck-add-mode 'typescript-tslint 'web-mode)
+(add-hook 'web-mode-hook 'company-mode)
+(add-hook 'web-mode-hook 'prettier-js-mode)
+(add-hook 'web-mode-hook #'turn-on-smartparens-mode t)
+
+;; HTML formatting
+(add-to-list 'auto-mode-alist '("\\.html\\'" . web-mode))
 
 ;; Livedown (live markdown preview)
 (if (file-directory-p (expand-file-name "~/.emacs.d/emacs-livedown"))
@@ -286,7 +350,7 @@ re-downloaded in order to locate PACKAGE."
  '(highlight-indent-guides-method 'character)
  '(js-indent-level 2)
  '(package-selected-packages
-   '(auto-virtualenv mode-line-bell csv-mode magit dockerfile-mode racket-mode yaml-mode ng2-mode php-mode cuda-mode elpy python-black projectile pyvenv dotenv-mode evil-collection pdf-tools auctex-latexmk auctex-lua auctex lua-mode evil-surround highlight-indent-guides vimish-fold js2-mode prettier-js dap-mode lsp-java shell-pop mips-mode lsp-mode rust-mode winum treemacs-evil treemacs helm ido-vertical-mode evil))
+   '(auto-virtualenv mode-line-bell prolog-mode web-mode csv-mode magit dockerfile-mode racket-mode yaml-mode php-mode cuda-mode elpy python-black projectile pyvenv dotenv-mode evil-collection pdf-tools auctex-latexmk auctex-lua auctex lua-mode evil-surround highlight-indent-guides vimish-fold js2-mode prettier-js dap-mode lsp-java shell-pop mips-mode lsp-mode rust-mode winum treemacs-evil treemacs helm ido-vertical-mode evil))
  '(prettier-js-args '("--tab-width 4"))
  '(warning-suppress-types '((comp))))
 (custom-set-faces
