@@ -22,6 +22,7 @@ re-downloaded in order to locate PACKAGE."
 (evil-mode 1)
 (require-package 'undo-tree)
 (global-undo-tree-mode)
+(with-eval-after-load 'undo-tree (defun undo-tree-overridden-undo-bindings-p () nil)) ;; because I overrode C-/ haha
 (evil-set-undo-system 'undo-tree)
 (require-package 'evil-collection)
 (evil-collection-init)
@@ -48,6 +49,7 @@ re-downloaded in order to locate PACKAGE."
 
 ;; Helm
 (require-package 'helm)
+(require 'helm-command) ;; loads helm-M-x-map, so helm-buffers-list works before helm-M-x is run
 (global-set-key (kbd "M-x") 'helm-M-x)
 (add-hook 'helm-after-initialize-hook
           (lambda()
@@ -63,10 +65,10 @@ re-downloaded in order to locate PACKAGE."
 (setq vterm-shell 'zsh)
 (setq inhibit-startup-screen t)
 (setq visible-bell nil
-      ring-bell-function 'flash-mode-line)
-(defun flash-mode-line()
-  (invert-face 'mode-line)
-  (run-with-timer 0.1 nil #'invert-face 'mode-line))
+      ring-bell-function
+      (lambda()
+        (invert-face 'mode-line)
+        (run-with-timer 0.1 nil #'invert-face 'mode-line)))
 (setq line-number-mode t)
 (setq-default doc-view-resolution 200)
 (setq-default doc-view-continuous t)
@@ -75,10 +77,10 @@ re-downloaded in order to locate PACKAGE."
 (tool-bar-mode -1)
 (prefer-coding-system 'utf-8)
 (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo")))
+(define-coding-system-alias 'UTF-8 'utf-8)
 ;; Colors in compilaiton window
 (require-package 'ansi-color)
 (add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
-(define-coding-system-alias 'UTF-8 'utf-8)
 
 
 ;; Shell-pop
@@ -94,7 +96,6 @@ re-downloaded in order to locate PACKAGE."
 
 ;; Keybinds
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
-;; (global-set-key (kbd "<escape>") 'keyboard-quit)
 (define-key evil-motion-state-map (kbd "SPC") nil)
 (define-key evil-normal-state-map (kbd "SPC r c") (lambda() (interactive) (load-file "~/.emacs.d/init.el")))
 (define-key treemacs-mode-map (kbd "SPC 0") 'treemacs)
@@ -120,17 +121,25 @@ re-downloaded in order to locate PACKAGE."
 (define-key evil-normal-state-map (kbd "SPC b l") 'next-buffer)
 ;; code
 (define-key evil-normal-state-map (kbd "SPC c r") 'recompile)
-(define-key evil-normal-state-map (kbd "SPC c l") 'comment-line)
+(define-key evil-normal-state-map (kbd "C-/") 'comment-line)
 (define-key evil-normal-state-map (kbd "SPC c c") (lambda()
                                                     (interactive)
                                                     (call-interactively 'compile)))
 (define-key evil-normal-state-map (kbd "SPC c i") (lambda()
                                                     (interactive)
                                                     (indent-region (point-min) (point-max) nil)))
+;; flycheck
+(define-key evil-normal-state-map (kbd "SPC f l") 'flycheck-list-errors)
+(define-key evil-normal-state-map (kbd "SPC f n") 'flycheck-next-error)
+(define-key evil-normal-state-map (kbd "SPC f p") 'flycheck-previous-error)
+;; flyspell
+(define-key evil-normal-state-map (kbd "SPC f a") 'flyspell-auto-correct-word)
+;; evaluate elisp
+(define-key evil-normal-state-map (kbd "SPC e r") 'eval-region)
 ;; shell-pop
 (define-key evil-normal-state-map (kbd "SPC '") 'shell-pop)
 ;; vterm
-(define-key vterm-mode-map (kbd "s-c") #'vterm-send-C-c)
+;; (define-key vterm-mode-map (kbd "s-c") #'vterm-send-next-C-c)
 (define-key vterm-mode-map (kbd "s-<backspace>")
     (lambda () (interactive) (vterm-send-key (kbd "C-w"))))
 
@@ -180,6 +189,7 @@ re-downloaded in order to locate PACKAGE."
 (add-hook 'csharp-mode-hook #'lsp)
 (add-hook 'c-mode-hook #'lsp)
 (add-hook 'typescript-mode-hook #'lsp)
+(add-hook 'markdown-mode-hook 'flyspell-mode)
 
 ;; Rust
 (require-package 'rust-mode)
