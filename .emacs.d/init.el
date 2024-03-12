@@ -1,7 +1,7 @@
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 (package-initialize)
-
+(package-refresh-contents)
 
 ;; https://github.com/Mstrodl/.emacs.d/blob/master/config.org
 (defun require-package (package &optional min-version no-refresh)
@@ -180,7 +180,7 @@ re-downloaded in order to locate PACKAGE."
                      :server-id 'pylsp-remote))
 ;; (evil-define-key 'normal lsp-mode-map (kbd "SPC l") lsp-command-map)
 (evil-define-minor-mode-key 'normal lsp-mode (kbd "SPC l") lsp-command-map)
-(add-hook 'rust-mode-hook #'lsp)
+(add-hook 'rust-ts-mode-hook #'lsp)
 (add-hook 'elpy-mode-hook #'lsp)
 (add-hook 'java-mode-hook #'lsp)
 (add-hook 'js2-mode-hook #'lsp)
@@ -193,11 +193,12 @@ re-downloaded in order to locate PACKAGE."
 
 ;; Rust
 (require-package 'rust-mode)
+(add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-ts-mode))
 (setq lsp-rust-analyzer-server-display-inlay-hints t
       lsp-rust-analyzer-completion-auto-import-enable t
       lsp-completion-enable-additional-text-edit t)
 (add-hook 'before-save-hook (lambda()
-                              (when (eq 'rust-mode major-mode)
+                              (when (eq 'rust-ts-mode major-mode)
                                 (lsp-format-buffer))))
 
 ;; C :)
@@ -335,6 +336,7 @@ re-downloaded in order to locate PACKAGE."
      (make "https://github.com/alemuller/tree-sitter-make")
      (markdown "https://github.com/ikatyang/tree-sitter-markdown")
      (python "https://github.com/tree-sitter/tree-sitter-python")
+     (rust "https://github.com/tree-sitter/tree-sitter-rust")
      (toml "https://github.com/tree-sitter/tree-sitter-toml")
      (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
      (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
