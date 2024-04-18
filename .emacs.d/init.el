@@ -132,17 +132,14 @@ re-downloaded in order to locate PACKAGE."
 (define-key evil-normal-state-map (kbd "SPC f l") 'flycheck-list-errors)
 (define-key evil-normal-state-map (kbd "SPC f n") 'flycheck-next-error)
 (define-key evil-normal-state-map (kbd "SPC f p") 'flycheck-previous-error)
-;; flyspell
+;; misc
 (define-key evil-normal-state-map (kbd "SPC f a") 'flyspell-auto-correct-word)
-;; evaluate elisp
 (define-key evil-normal-state-map (kbd "SPC e r") 'eval-region)
-;; shell-pop
 (define-key evil-normal-state-map (kbd "SPC '") 'shell-pop)
-;; vterm
-;; (define-key vterm-mode-map (kbd "s-c") #'vterm-send-next-C-c)
-(define-key vterm-mode-map (kbd "s-<backspace>")
-    (lambda () (interactive) (vterm-send-key (kbd "C-w"))))
-
+(define-key evil-normal-state-map (kbd "(") 'treesit-beginning-of-defun)
+(define-key evil-normal-state-map (kbd ")") 'treesit-end-of-defun)
+(define-key evil-visual-state-map (kbd "(") 'treesit-beginning-of-defun)
+(define-key evil-visual-state-map (kbd ")") 'treesit-end-of-defun)
 
 
 ;; Winum
@@ -210,6 +207,14 @@ re-downloaded in order to locate PACKAGE."
 (add-hook 'before-save-hook (lambda()
                               (when (eq 'csharp-mode major-mode)
                                 (lsp-format-buffer))))
+
+;; YAML
+(add-to-list 'auto-mode-alist '("\\.yaml\\'" . yaml-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-ts-mode))
+
+;; Terraform
+(require-package 'terraform-mode)
+(add-hook 'terraform-mode 'terraform-format-on-save-mode)
 
 ;; Python
 (require-package 'elpy)
@@ -362,7 +367,7 @@ re-downloaded in order to locate PACKAGE."
  '(highlight-indent-guides-method 'character)
  '(js-indent-level 2)
  '(package-selected-packages
-   '(auto-virtualenv mode-line-bell prolog-mode web-mode csv-mode magit dockerfile-mode racket-mode yaml-mode php-mode cuda-mode elpy python-black projectile pyvenv dotenv-mode evil-collection pdf-tools auctex-latexmk auctex-lua auctex lua-mode evil-surround highlight-indent-guides vimish-fold js2-mode prettier-js dap-mode lsp-java shell-pop mips-mode lsp-mode rust-mode winum treemacs-evil treemacs helm ido-vertical-mode evil))
+   '(terraform-mode auto-virtualenv mode-line-bell prolog-mode web-mode csv-mode magit dockerfile-mode racket-mode yaml-mode php-mode cuda-mode elpy python-black projectile pyvenv dotenv-mode evil-collection pdf-tools auctex-latexmk auctex-lua auctex lua-mode evil-surround highlight-indent-guides vimish-fold js2-mode prettier-js dap-mode lsp-java shell-pop mips-mode lsp-mode rust-mode winum treemacs-evil treemacs helm ido-vertical-mode evil))
  '(prettier-js-args '("--tab-width 4"))
  '(warning-suppress-types '((comp))))
 (custom-set-faces

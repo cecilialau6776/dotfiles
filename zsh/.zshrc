@@ -135,10 +135,10 @@ alias chom="echo 'chom'"
 alias kbf="bash ~/kbf.sh"
 alias xc="xclip -selection clipboard"
 alias se="sudoedit"
-alias emacs="TERM=xterm-24bit emacs -nw || emacs"
 alias purgeemacstemp="find . -name '*~' -delete"
 alias sv="source .venv/bin/activate"
 alias de="deactivate"
+alias tf="terraform"
 
 # Run startx on login
 if [ -z "${DISPLAY}" ] && [ "${XDG_VTNR}" -eq 1 ]; then
