@@ -1,3 +1,7 @@
+(scroll-bar-mode -1)
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 (package-initialize)
@@ -72,14 +76,12 @@ re-downloaded in order to locate PACKAGE."
 (setq line-number-mode t)
 (setq-default doc-view-resolution 200)
 (setq-default doc-view-continuous t)
-(scroll-bar-mode -1)
-(menu-bar-mode -1)
-(tool-bar-mode -1)
 (prefer-coding-system 'utf-8)
 (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo")))
 (define-coding-system-alias 'UTF-8 'utf-8)
 ;; Colors in compilaiton window
 (require-package 'ansi-color)
+(setq ansi-color-for-compilation-mode t)
 (add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
 
 
@@ -122,6 +124,7 @@ re-downloaded in order to locate PACKAGE."
 ;; code
 (define-key evil-normal-state-map (kbd "SPC c r") 'recompile)
 (define-key evil-normal-state-map (kbd "C-/") 'comment-line)
+(define-key evil-normal-state-map (kbd "C-SPC") 'lsp-execute-code-action)
 (define-key evil-normal-state-map (kbd "SPC c c") (lambda()
                                                     (interactive)
                                                     (call-interactively 'compile)))
@@ -184,7 +187,8 @@ re-downloaded in order to locate PACKAGE."
 (add-hook 'prolog-mode-hook #'lsp)
 (add-hook 'web-mode-hook #'lsp)
 (add-hook 'csharp-mode-hook #'lsp)
-(add-hook 'c-mode-hook #'lsp)
+(add-hook 'c-ts-mode-hook #'lsp)
+(add-hook 'c++-ts-mode-hook #'lsp)
 (add-hook 'typescript-mode-hook #'lsp)
 (add-hook 'markdown-mode-hook 'flyspell-mode)
 
@@ -199,8 +203,16 @@ re-downloaded in order to locate PACKAGE."
                                 (lsp-format-buffer))))
 
 ;; C :)
+(add-to-list 'auto-mode-alist '("\\.c\\'" . c-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.h\\'" . c-ts-mode))
 (add-hook 'before-save-hook (lambda()
-                              (when (eq 'c-mode major-mode)
+                              (when (eq 'c-ts-mode major-mode)
+                                (lsp-format-buffer))))
+
+;; C++
+(add-to-list 'auto-mode-alist '("\\.cpp\\'" . c++-ts-mode))
+(add-hook 'before-save-hook (lambda()
+                              (when (eq 'c++-ts-mode major-mode)
                                 (lsp-format-buffer))))
 
 ;; C# :(
@@ -253,6 +265,12 @@ re-downloaded in order to locate PACKAGE."
    :multi-root t
    :server-id 'prolog-ls))
 (add-to-list 'auto-mode-alist '("\\.pl\\'" . prolog-mode))
+
+;; SQL formatting
+(require-package 'sqlformat)
+(setq sqlformat-command 'sql-formatter)
+(add-hook 'sql-mode-hook 'sqlformat-on-save-mode)
+(setq sqlformat-args '("-l" "postgresql" "-c" "{\"tabWidth\": 4}"))
 
 ;; Auto-insert mode
 (auto-insert-mode)
@@ -339,6 +357,8 @@ re-downloaded in order to locate PACKAGE."
      (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
      (json "https://github.com/tree-sitter/tree-sitter-json")
      (make "https://github.com/alemuller/tree-sitter-make")
+     (c "https://github.com/tree-sitter/tree-sitter-c")
+     (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
      (markdown "https://github.com/ikatyang/tree-sitter-markdown")
      (python "https://github.com/tree-sitter/tree-sitter-python")
      (rust "https://github.com/tree-sitter/tree-sitter-rust")
@@ -367,7 +387,7 @@ re-downloaded in order to locate PACKAGE."
  '(highlight-indent-guides-method 'character)
  '(js-indent-level 2)
  '(package-selected-packages
-   '(terraform-mode auto-virtualenv mode-line-bell prolog-mode web-mode csv-mode magit dockerfile-mode racket-mode yaml-mode php-mode cuda-mode elpy python-black projectile pyvenv dotenv-mode evil-collection pdf-tools auctex-latexmk auctex-lua auctex lua-mode evil-surround highlight-indent-guides vimish-fold js2-mode prettier-js dap-mode lsp-java shell-pop mips-mode lsp-mode rust-mode winum treemacs-evil treemacs helm ido-vertical-mode evil))
+   '(terraform-mode sqlformat auto-virtualenv mode-line-bell prolog-mode web-mode csv-mode magit dockerfile-mode racket-mode yaml-mode php-mode cuda-mode elpy python-black projectile pyvenv dotenv-mode evil-collection pdf-tools auctex-latexmk auctex-lua auctex lua-mode evil-surround highlight-indent-guides vimish-fold js2-mode prettier-js dap-mode lsp-java shell-pop mips-mode lsp-mode rust-mode winum treemacs-evil treemacs helm ido-vertical-mode evil))
  '(prettier-js-args '("--tab-width 4"))
  '(warning-suppress-types '((comp))))
 (custom-set-faces

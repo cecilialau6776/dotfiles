@@ -1,0 +1,43 @@
+# Delete
+def_key "d"
+  delete_playlist_items
+def_key "d"
+  delete_browser_items
+def_key "d"
+  delete_stored_playlist
+
+# Vim <3
+def_key "k"
+  scroll_up
+def_key "K"
+  move_selected_items_up
+
+def_key "j"
+  scroll_down
+def_key "J"
+  move_selected_items_down
+
+def_key "h"
+  previous_column
+def_key "h"
+  jump_to_parent_directory
+
+def_key "l"
+  next_column
+def_key "l"
+  enter_directory
+def_key "l"
+  toggle_output
+def_key "l"
+  run_action
+def_key "l"
+  show_lyrics
+
+# Search
+def_key "n"
+  next_found_item
+def_key "N"
+  previous_found_item
+
+
+# Selecting
