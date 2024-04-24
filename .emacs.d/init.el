@@ -123,6 +123,7 @@ re-downloaded in order to locate PACKAGE."
 (define-key evil-normal-state-map (kbd "SPC b l") 'next-buffer)
 ;; code
 (define-key evil-normal-state-map (kbd "SPC c r") 'recompile)
+(define-key evil-normal-state-map (kbd "SPC c k") 'kill-compilation)
 (define-key evil-normal-state-map (kbd "C-/") 'comment-line)
 (define-key evil-normal-state-map (kbd "C-SPC") 'lsp-execute-code-action)
 (define-key evil-normal-state-map (kbd "SPC c c") (lambda()
@@ -387,7 +388,7 @@ re-downloaded in order to locate PACKAGE."
  '(highlight-indent-guides-method 'character)
  '(js-indent-level 2)
  '(package-selected-packages
-   '(terraform-mode sqlformat auto-virtualenv mode-line-bell prolog-mode web-mode csv-mode magit dockerfile-mode racket-mode yaml-mode php-mode cuda-mode elpy python-black projectile pyvenv dotenv-mode evil-collection pdf-tools auctex-latexmk auctex-lua auctex lua-mode evil-surround highlight-indent-guides vimish-fold js2-mode prettier-js dap-mode lsp-java shell-pop mips-mode lsp-mode rust-mode winum treemacs-evil treemacs helm ido-vertical-mode evil))
+   '(terraform-mode auto-virtualenv mode-line-bell prolog-mode web-mode csv-mode magit dockerfile-mode racket-mode yaml-mode php-mode cuda-mode elpy python-black projectile pyvenv dotenv-mode evil-collection pdf-tools auctex-latexmk auctex-lua auctex lua-mode evil-surround highlight-indent-guides vimish-fold js2-mode prettier-js dap-mode lsp-java shell-pop mips-mode lsp-mode rust-mode winum treemacs-evil treemacs helm ido-vertical-mode evil))
  '(prettier-js-args '("--tab-width 4"))
  '(warning-suppress-types '((comp))))
 (custom-set-faces
