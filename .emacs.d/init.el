@@ -67,6 +67,7 @@ re-downloaded in order to locate PACKAGE."
 (global-auto-revert-mode t)
 (require-package 'vterm)
 (setq vterm-shell 'zsh)
+(setq evil-symbol-word-search t)
 (setq inhibit-startup-screen t)
 (setq visible-bell nil
       ring-bell-function
