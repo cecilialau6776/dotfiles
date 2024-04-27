@@ -38,7 +38,7 @@ re-downloaded in order to locate PACKAGE."
 (setq-default c-basic-offset 2)
 (setq-default tab-width standard-indent)
 
-(setq-default rust-indent-offset 2)
+(setq-default rust-ts-mode-indent-offset 2)
 (setq-default typescript-indent-level 2)
 (setq-default js-indent-level 4)
 (setq-default lua-indent-level 4)
