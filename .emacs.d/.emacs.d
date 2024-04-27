@@ -1,1 +1,0 @@
-/home/pixel/dotfiles/.emacs.d/
