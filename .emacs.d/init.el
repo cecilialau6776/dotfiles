@@ -222,6 +222,10 @@ re-downloaded in order to locate PACKAGE."
                               (when (eq 'csharp-mode major-mode)
                                 (lsp-format-buffer))))
 
+
+;; JSON
+(add-to-list 'auto-mode-alist '("\\.json\\'" . json-ts-mode))
+
 ;; YAML
 (add-to-list 'auto-mode-alist '("\\.yaml\\'" . yaml-ts-mode))
 (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-ts-mode))
