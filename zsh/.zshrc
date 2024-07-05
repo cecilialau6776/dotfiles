@@ -121,7 +121,10 @@ unsetopt HIST_VERIFY
 #
 # Example aliases
 alias zshconfig="vim ~/.zshrc && . ~/.zshrc"
-alias sl="ls"
+command -v eza > /dev/null && alias ls="eza"
+command -v eza > /dev/null && alias sl="eza"
+command -v eza > /dev/null && alias l="eza -lah"
+command -v bat > /dev/null && alias cat="bat"
 alias nano="vim"
 alias vi="vim"
 alias code="vscodium"

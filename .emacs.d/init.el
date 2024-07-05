@@ -393,7 +393,7 @@ re-downloaded in order to locate PACKAGE."
  '(highlight-indent-guides-method 'character)
  '(js-indent-level 2)
  '(package-selected-packages
-   '(terraform-mode auto-virtualenv mode-line-bell prolog-mode web-mode csv-mode magit dockerfile-mode racket-mode yaml-mode php-mode cuda-mode elpy python-black projectile pyvenv dotenv-mode evil-collection pdf-tools auctex-latexmk auctex-lua auctex lua-mode evil-surround highlight-indent-guides vimish-fold js2-mode prettier-js dap-mode lsp-java shell-pop mips-mode lsp-mode rust-mode winum treemacs-evil treemacs helm ido-vertical-mode evil))
+   '(rainbow-mode terraform-mode auto-virtualenv mode-line-bell prolog-mode web-mode csv-mode magit dockerfile-mode racket-mode yaml-mode php-mode cuda-mode elpy python-black projectile pyvenv dotenv-mode evil-collection pdf-tools auctex-latexmk auctex-lua auctex lua-mode evil-surround highlight-indent-guides vimish-fold js2-mode prettier-js dap-mode lsp-java shell-pop mips-mode lsp-mode rust-mode winum treemacs-evil treemacs helm ido-vertical-mode evil))
  '(prettier-js-args '("--tab-width 4"))
  '(warning-suppress-types '((comp))))
 (custom-set-faces
