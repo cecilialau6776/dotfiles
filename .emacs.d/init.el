@@ -38,7 +38,7 @@ re-downloaded in order to locate PACKAGE."
 (setq-default c-basic-offset 2)
 (setq-default tab-width standard-indent)
 
-(setq-default rust-ts-mode-indent-offset 2)
+(setq-default rust-ts-mode-indent-offset 4)
 (setq-default typescript-indent-level 2)
 (setq-default js-indent-level 4)
 (setq-default lua-indent-level 4)
@@ -63,9 +63,20 @@ re-downloaded in order to locate PACKAGE."
             ))
 
 
-;; Misc
+;; Colorful Mode
 (require-package 'colorful-mode)
+(dolist
+    (mode '(fundamental-mode
+            conf-xdefaults-mode
+            text-mode
+            vterm-mode
+            conf-space-mode
+            conf-toml-mode
+            markdown-mode))
+  (add-to-list 'global-colorful-modes mode))
 (global-colorful-mode)
+
+;; Misc
 (global-auto-revert-mode t)
 (require-package 'vterm)
 (setq vterm-shell 'zsh)
@@ -86,6 +97,8 @@ re-downloaded in order to locate PACKAGE."
 (require-package 'ansi-color)
 (setq ansi-color-for-compilation-mode t)
 (add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
+;; Misc modes
+(require-package 'ron-mode)
 
 
 ;; Shell-pop
@@ -192,6 +205,7 @@ re-downloaded in order to locate PACKAGE."
 (add-hook 'web-mode-hook #'lsp)
 (add-hook 'csharp-mode-hook #'lsp)
 (add-hook 'c-ts-mode-hook #'lsp)
+(add-hook 'lua-mode-hook #'lsp)
 (add-hook 'c++-ts-mode-hook #'lsp)
 (add-hook 'typescript-mode-hook #'lsp)
 (add-hook 'markdown-mode-hook 'flyspell-mode)
@@ -375,11 +389,12 @@ re-downloaded in order to locate PACKAGE."
      (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
      (yaml "https://github.com/ikatyang/tree-sitter-yaml")))
 
-;; Ephemeral theme
+;; ;; Theme
+(add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 (require-package 'doom-themes)
 (setq doom-themes-enable-bold t)
 (setq doom-themes-enable-italic t)
-(load-theme 'doom-ephemeral t)
+(load-theme 'doom-pixel t)
 
 
 
@@ -391,11 +406,13 @@ re-downloaded in order to locate PACKAGE."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(auth-source-save-behavior nil)
+ '(custom-safe-themes
+   '("587f2ac20f383e0769b40eb8e2384b0f4155157f0ba5cd816bd44edbaa1816e9" "a773d1be23ed92ced6ba63f261e0f8256bdac531ca2835c3301c50b33490e895" "ea7e80076c3d256912ab1fd825a551a97e0d36a4ee069d83c61fb9b186b6cf16" "02b63ebf992317c8f7baa696c797622289cb3f0824f603690dfdcebd28c87fe3" "afc643a5537104f90a1675ba4518826c25005dd955c82a1253deddbda2283109" "406df210526f6e86c7cb82a08d8db42cb5703de356e8d8ea15307d5b1bdc13f9" "a713860237327e1877a00ae4d86fc2d72970f33b92180b52476432d186b9a1e3" "914859deb77b5928a534e4839aec3d5e64764344c944b2e0219ff63092f4fc85" "00026dabe7a174d3ea4c7e6d2f3c1d2d93098a4f48d7392e7d2fd56996eb7382" "c2fe8298464ed2f7c54db5f50e5c02d1b186810342e0abb5dc56fcc438d34c8b" "3978f735426f54d1dff97fbc2cd755a6bc19b62796613388ced06d414c25bdcd" "7fa3f029214c2f8f993c68ba70c9e49fb9a4d82f4c1be76e4b4a1814c8441151" "fdde57022127bd493abf479e6c12e13462973d5be9f1b8df152cc6bdd41e0438" "c5c6d641767329992eb1b86f87ef45ca63141190f571692447bd9cc88d2e9f62" "840364b105f4f6024d2a838b873ba833e49d058d4559135a22b4351d9934bcfe" "8c4d9efce21d20194c8778b414115f1e8663236ca22b0cdf145d32fe563e4be4" "5def3bbd06c9246980c4b4975e56febc187967ff39ce829ea63b3da1add47624" "9922bca5f20a360696a00cf97c608847ef7c5eaaced85143077cce98969ac75b" "80c80cd5ae8ca357c306a9e24392055893ca7f90cc71bef6cd69b1bc4b21f015" "dfb1c8b5bfa040b042b4ef660d0aab48ef2e89ee719a1f24a4629a0c5ed769e8" "e5494adf200eeff1505839672150dde6053e086869189c381b1ce9b792dda3a8" default))
  '(helm-minibuffer-history-key "M-p")
  '(highlight-indent-guides-method 'character)
  '(js-indent-level 2)
  '(package-selected-packages
-   '(colorful-mode terraform-mode auto-virtualenv mode-line-bell prolog-mode web-mode csv-mode magit dockerfile-mode racket-mode yaml-mode php-mode cuda-mode elpy python-black projectile pyvenv dotenv-mode evil-collection pdf-tools auctex-latexmk auctex-lua auctex lua-mode evil-surround highlight-indent-guides vimish-fold js2-mode prettier-js dap-mode lsp-java shell-pop mips-mode lsp-mode rust-mode winum treemacs-evil treemacs helm ido-vertical-mode evil))
+   '(ron-mode colorful-mode terraform-mode auto-virtualenv mode-line-bell prolog-mode web-mode csv-mode magit dockerfile-mode racket-mode yaml-mode php-mode cuda-mode elpy python-black projectile pyvenv dotenv-mode evil-collection pdf-tools auctex-latexmk auctex-lua auctex lua-mode evil-surround highlight-indent-guides vimish-fold js2-mode prettier-js dap-mode lsp-java shell-pop mips-mode lsp-mode rust-mode winum treemacs-evil treemacs helm ido-vertical-mode evil))
  '(prettier-js-args '("--tab-width 4"))
  '(warning-suppress-types '((comp))))
 (custom-set-faces
