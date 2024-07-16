@@ -1,0 +1,28 @@
+*background:	#4D2245
+*foreground:	#F8F8F2
+*cursorColor:	#F8F8F2
+
+! dark
+*color0:   #6F3165
+*color8:   #914084
+! error / red
+*color1:   #FF7F70
+*color9:   #D6695D
+! success / green
+*color2:   #70FF83
+*color10:  #5DD46D
+! warn / yellow
+*color3:   #FFE570
+*color11:  #D4BF5D
+! blue? maybe replace w/ pink
+*color4:   #AF70FF
+*color12:  #7A4FB3
+! magenta
+*color5:   #FF70EA
+*color13:  #E665D2
+! cyan
+*color6:   #70FFF6
+*color14:  #5DD4CD
+! white
+*color7:   #F8F8F2
+*color15:  #E5E5E5
