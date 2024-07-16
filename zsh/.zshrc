@@ -135,7 +135,7 @@ alias lh='command ls -hAl --color=auto -v'
 alias :q="exit"
 alias xit="exit"
 alias chom="echo 'chom'"
-alias kbf="bash ~/kbf.sh"
+alias kbf="sh ~/kbf.sh"
 alias xc="xclip -selection clipboard"
 alias se="sudoedit"
 alias purgeemacstemp="find . -name '*~' -delete"
