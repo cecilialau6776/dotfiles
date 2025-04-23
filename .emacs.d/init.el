@@ -72,6 +72,7 @@ re-downloaded in order to locate PACKAGE."
             vterm-mode
             conf-space-mode
             conf-toml-mode
+            help-mode
             markdown-mode))
   (add-to-list 'global-colorful-modes mode))
 (global-colorful-mode)
@@ -112,6 +113,19 @@ re-downloaded in order to locate PACKAGE."
 (require-package 'shell-pop)
 
 
+;; Comment Do What I Mean Line
+(defun comment-dwim-line (&optional arg)
+"Replacement for the comment-dwim command.
+If no region is selected and current line is not blank and we are not at the end of the line,
+then comment current line.
+Replaces default behaviour of comment-dwim, when it inserts comment at the end of the line."
+    (interactive "*P")
+    (comment-normalize-vars)
+    (if (not (region-active-p))
+        (comment-or-uncomment-region (line-beginning-position) (line-end-position))
+    (comment-dwim arg)))
+
+
 ;; Keybinds
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 (define-key evil-motion-state-map (kbd "SPC") nil)
@@ -140,7 +154,7 @@ re-downloaded in order to locate PACKAGE."
 ;; code
 (define-key evil-normal-state-map (kbd "SPC c r") 'recompile)
 (define-key evil-normal-state-map (kbd "SPC c k") 'kill-compilation)
-(define-key evil-normal-state-map (kbd "C-/") 'comment-line)
+(define-key evil-normal-state-map (kbd "C-/") 'comment-dwim-line)
 (define-key evil-normal-state-map (kbd "C-SPC") 'lsp-execute-code-action)
 (define-key evil-normal-state-map (kbd "SPC c c") (lambda()
                                                     (interactive)
@@ -148,10 +162,18 @@ re-downloaded in order to locate PACKAGE."
 (define-key evil-normal-state-map (kbd "SPC c i") (lambda()
                                                     (interactive)
                                                     (indent-region (point-min) (point-max) nil)))
+
+(define-key evil-normal-state-map (kbd "?") 'lsp-ui-doc-glance)
 ;; flycheck
 (define-key evil-normal-state-map (kbd "SPC f l") 'flycheck-list-errors)
 (define-key evil-normal-state-map (kbd "SPC f n") 'flycheck-next-error)
 (define-key evil-normal-state-map (kbd "SPC f p") 'flycheck-previous-error)
+;; minibuffer
+;; gotta unbind them first first
+(define-key evil-ex-completion-map (kbd "C-S-v") 'evil-paste-after)
+(define-key evil-ex-completion-map (kbd "C-v") 'evil-paste-after)
+(define-key minibuffer-local-map (kbd "C-S-v") 'evil-paste-after)
+(define-key minibuffer-local-map (kbd "C-v") 'evil-paste-after)
 ;; misc
 (define-key evil-normal-state-map (kbd "SPC f a") 'flyspell-auto-correct-word)
 (define-key evil-normal-state-map (kbd "SPC e r") 'eval-region)
@@ -199,7 +221,7 @@ re-downloaded in order to locate PACKAGE."
 (evil-define-minor-mode-key 'normal lsp-mode (kbd "SPC l") lsp-command-map)
 (add-hook 'rust-ts-mode-hook #'lsp)
 (add-hook 'elpy-mode-hook #'lsp)
-(add-hook 'java-mode-hook #'lsp)
+(add-hook 'java-ts-mode-hook #'lsp)
 (add-hook 'js2-mode-hook #'lsp)
 (add-hook 'prolog-mode-hook #'lsp)
 (add-hook 'web-mode-hook #'lsp)
@@ -208,7 +230,8 @@ re-downloaded in order to locate PACKAGE."
 (add-hook 'lua-mode-hook #'lsp)
 (add-hook 'c++-ts-mode-hook #'lsp)
 (add-hook 'typescript-mode-hook #'lsp)
-(add-hook 'markdown-mode-hook 'flyspell-mode)
+(add-hook 'go-ts-mode-hook #'lsp)
+(add-hook 'markdown-mode-hook #'flyspell-mode)
 
 ;; Rust
 (require-package 'rust-mode)
@@ -219,6 +242,17 @@ re-downloaded in order to locate PACKAGE."
 (add-hook 'before-save-hook (lambda()
                               (when (eq 'rust-ts-mode major-mode)
                                 (lsp-format-buffer))))
+(add-hook 'rust-ts-mode-hook (lambda()
+                               (define-key evil-normal-state-map
+                                           (kbd "SPC c l")
+                                           'rust-run-clippy)
+                               (define-key evil-normal-state-map
+                                           (kbd "SPC c r")
+                                           'rust-run)
+                               (define-key evil-normal-state-map
+                                           (kbd "SPC c R")
+                                           'rust-run-release)
+                               ))
 
 ;; C :)
 (add-to-list 'auto-mode-alist '("\\.c\\'" . c-ts-mode))
@@ -238,7 +272,6 @@ re-downloaded in order to locate PACKAGE."
                               (when (eq 'csharp-mode major-mode)
                                 (lsp-format-buffer))))
 
-
 ;; JSON
 (add-to-list 'auto-mode-alist '("\\.json\\'" . json-ts-mode))
 
@@ -257,17 +290,24 @@ re-downloaded in order to locate PACKAGE."
 (require-package 'python-black)
 (add-to-list 'auto-mode-alist '("\\.py\\'" . python-ts-mode))
 (elpy-enable)
-(add-hook 'elpy-mode-hook (lambda ()
-                            (add-hook 'before-save-hook
-                                      'python-black-buffer nil t)))
+(add-hook 'python-ts-mode-hook
+          (lambda ()
+            (setq-default tab-width 4)))
+;; (add-hook 'elpy-mode-hook (lambda ()
+;;                             (add-hook 'before-save-hook
+;;                                       'python-black-buffer nil t)))
 (add-hook 'python-ts-mode-hook #'elpy-mode)
 (add-hook 'python-ts-mode-hook 'auto-virtualenv-set-virtualenv)
-(add-hook 'before-save-hook (lambda()
-                              (when (eq 'python-ts-mode major-mode)
-                                (py-isort-buffer))))
+;; (add-hook 'before-save-hook (lambda()
+;;                               (when (eq 'python-ts-mode major-mode)
+;;                                 (py-isort-buffer))))
 
 ;; Java
 (require-package 'lsp-java)
+(add-to-list 'auto-mode-alist '("\\.java\\'" . java-ts-mode))
+(add-hook 'before-save-hook (lambda()
+                              (when (eq 'java-ts-mode major-mode)
+                                (lsp-format-buffer))))
 
 ;; Lua
 (require-package 'lua-mode)
@@ -332,17 +372,37 @@ re-downloaded in order to locate PACKAGE."
 (add-hook 'before-save-hook 'tide-format-before-save)
 (add-hook 'typescript-mode-hook #'setup-tide-mode)
 (add-hook 'rjsx-mode-hook 'tide-setup-hook)
-(add-hook 'web-mode-hook 'tide-setup-hook
-          (lambda () (pcase (file-name-extension buffer-file-name)
-                  ("tsx" ('tide-setup-hook))
-                  (_ (my-web-mode-hook)))))
+(add-hook 'web-mode-hook (lambda()
+                           (pcase (file-name-extension buffer-file-name)
+                             ("tsx" ('tide-setup-hook))
+                             (_ ()))))
 (flycheck-add-mode 'typescript-tslint 'web-mode)
 (add-hook 'web-mode-hook 'company-mode)
 (add-hook 'web-mode-hook 'prettier-js-mode)
-(add-hook 'web-mode-hook #'turn-on-smartparens-mode t)
+;; (add-hook 'web-mode-hook #'turn-on-smartparens-mode t)
 
 ;; HTML formatting
 (add-to-list 'auto-mode-alist '("\\.html\\'" . web-mode))
+
+;; LaTeX
+(add-hook 'latex-mode-hook #'flyspell-mode)
+(add-hook 'latex-mode-hook #'word-wrap-whitespace-mode)
+(add-hook 'TeX-mode-hook (lambda()
+                           (define-key evil-normal-state-map
+                                       (kbd "SPC c r")
+                                       'TeX-command-run-all)))
+
+;; Matlab use octave mode
+(add-to-list 'auto-mode-alist '("\\.m\\'" . octave-mode))
+(add-hook 'octave-mode-hook (lambda()
+                              (setq comment-start "%")
+                              (setq evil-shift-width 2)
+                              ))
+
+;; Golang
+(require-package 'go-mode)
+(add-to-list 'exec-path (expand-file-name "~/go/bin"))
+(add-to-list 'auto-mode-alist '("\\.go\\'" . go-ts-mode))
 
 ;; Livedown (live markdown preview)
 (if (file-directory-p (expand-file-name "~/.emacs.d/emacs-livedown"))
@@ -351,6 +411,9 @@ re-downloaded in order to locate PACKAGE."
         (require 'livedown)
         (setq livedown-autostart 1)))
 
+;; shell-script-mode
+(add-to-list 'auto-mode-alist '("\\.zsh-theme\\'" . shell-script-mode))
+
 ;; Vimish Fold
 (require-package 'vimish-fold)
 (define-key evil-normal-state-map (kbd "z f") 'vimish-fold)
@@ -358,7 +421,6 @@ re-downloaded in order to locate PACKAGE."
 (define-key evil-normal-state-map (kbd "z u") 'vimish-fold-unfold)
 (define-key evil-normal-state-map (kbd "z d") 'vimish-fold-delete)
 (define-key evil-normal-state-map (kbd "z z") 'vimish-fold-toggle)
-
 
 ;; Indent highlight guides
 (require-package 'highlight-indent-guides)
@@ -383,21 +445,25 @@ re-downloaded in order to locate PACKAGE."
      (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
      (markdown "https://github.com/ikatyang/tree-sitter-markdown")
      (python "https://github.com/tree-sitter/tree-sitter-python")
+     (java "https://github.com/tree-sitter/tree-sitter-java")
      (rust "https://github.com/tree-sitter/tree-sitter-rust")
      (toml "https://github.com/tree-sitter/tree-sitter-toml")
      (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
      (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
      (yaml "https://github.com/ikatyang/tree-sitter-yaml")))
 
-;; ;; Theme
+;; Theme
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 (require-package 'doom-themes)
 (setq doom-themes-enable-bold t)
 (setq doom-themes-enable-italic t)
 (load-theme 'doom-pixel t)
 
-
-
+;; Semantic
+(add-to-list 'semantic-default-submodes 'global-semantic-stickyfunc-mode)
+(require-package 'semantic)
+(semantic-mode 1)
+(require-package 'stickyfunc-enhance)
 
 
 (custom-set-variables
@@ -407,12 +473,84 @@ re-downloaded in order to locate PACKAGE."
  ;; If there is more than one, they won't work right.
  '(auth-source-save-behavior nil)
  '(custom-safe-themes
-   '("587f2ac20f383e0769b40eb8e2384b0f4155157f0ba5cd816bd44edbaa1816e9" "a773d1be23ed92ced6ba63f261e0f8256bdac531ca2835c3301c50b33490e895" "ea7e80076c3d256912ab1fd825a551a97e0d36a4ee069d83c61fb9b186b6cf16" "02b63ebf992317c8f7baa696c797622289cb3f0824f603690dfdcebd28c87fe3" "afc643a5537104f90a1675ba4518826c25005dd955c82a1253deddbda2283109" "406df210526f6e86c7cb82a08d8db42cb5703de356e8d8ea15307d5b1bdc13f9" "a713860237327e1877a00ae4d86fc2d72970f33b92180b52476432d186b9a1e3" "914859deb77b5928a534e4839aec3d5e64764344c944b2e0219ff63092f4fc85" "00026dabe7a174d3ea4c7e6d2f3c1d2d93098a4f48d7392e7d2fd56996eb7382" "c2fe8298464ed2f7c54db5f50e5c02d1b186810342e0abb5dc56fcc438d34c8b" "3978f735426f54d1dff97fbc2cd755a6bc19b62796613388ced06d414c25bdcd" "7fa3f029214c2f8f993c68ba70c9e49fb9a4d82f4c1be76e4b4a1814c8441151" "fdde57022127bd493abf479e6c12e13462973d5be9f1b8df152cc6bdd41e0438" "c5c6d641767329992eb1b86f87ef45ca63141190f571692447bd9cc88d2e9f62" "840364b105f4f6024d2a838b873ba833e49d058d4559135a22b4351d9934bcfe" "8c4d9efce21d20194c8778b414115f1e8663236ca22b0cdf145d32fe563e4be4" "5def3bbd06c9246980c4b4975e56febc187967ff39ce829ea63b3da1add47624" "9922bca5f20a360696a00cf97c608847ef7c5eaaced85143077cce98969ac75b" "80c80cd5ae8ca357c306a9e24392055893ca7f90cc71bef6cd69b1bc4b21f015" "dfb1c8b5bfa040b042b4ef660d0aab48ef2e89ee719a1f24a4629a0c5ed769e8" "e5494adf200eeff1505839672150dde6053e086869189c381b1ce9b792dda3a8" default))
+   '("fcff3bd64e1bcede13d527baae1ee4ce7b3dae1346495ff30fd17ee7d4781134"
+     "9dd5c7baf655ff549949a761ccec016091b2a4141d7c9105b05cf21f3d873f6a"
+     "94172571752196ec37617e043eda3546a552a71bbe31c6eea2af19013ea14383"
+     "14100afaf6ad421e6f7b7bda74fc58d52f5e8241272dd1621f8b77d18965fb47"
+     "6ec0fb8b90690eb602eaafb53b9fee71dc56de01d5fb40b44d835fb54f062f84"
+     "76e2758f007aaca39f02e37fe061d1f14029cc15f456d68ad5541dbfa7322938"
+     "4c6cfb98f58ddddfc810aac6e27f1c79f4d9500d3dad26b428967ce924003e58"
+     "197105c4eb4a90bf72b108a35af850d9772756d9162d69b5d7553b5d16d8b541"
+     "ece2542cfe228e30f487edddd4b8199a53cd7e5389062005266219cc06138417"
+     "2e3c04d7f77bc7f571d9cd1fcc3388cc5284284776a93a1301e790509dea42d4"
+     "18ca0e7214673e3a7fce3bd6811f58b956ae827df4da51edb5764441dba43874"
+     "f676dea960effe9835256297def3c6e52058263c143fd90a15a50eca248ac6bb"
+     "3a5a08fd785c8a6c340b6e71205f0189926bfd7b9c90dee6eb29ef448ba1796e"
+     "0f82869eb28c97c2502d735c1c5e08ce70ca0b321a4f39aff32e1cde42ccf1cb"
+     "6731c4ce0944cc2b35bcdfb0fe3e192fb4fbf002845d76e33975db1c709eb6bb"
+     "7b8fa16385cc547dc9678c29389babfd449916d2b13269b2b89f86e2d97436ff"
+     "1fc6b7661b1821b63b0fd38c1adb4c69344501e65a7fd49be9321c1792ee6099"
+     "6143cac999431ab6e94e21ac83c9cfea3e95efbaeb52e4045a493b7650c2c4e7"
+     "b25aa10e4bcf36a6ccf2169f3cc277f487f8b214c8d55c84811d1494e44ef8f2"
+     "66878c3ac27a29b713fc462f624627bda8b2bdaef4181ed82620694a30d2bc87"
+     "c39e75c161ab0a40ae8d57f6081c2ddb157615a9fe1d30afa3df249cf9d57de1"
+     "b137666681231f13f11513d23e141a5dc7e81b3d2f7919f42a71e59be5e3ec64"
+     "558d5798432b98cd74f1230b033222960f0dc4e13df661323a81820d992ae93d"
+     "5df7c6fcf5eccc1f37ca8f0cac60b8863300d444eac3760c21d36d9ea9b5f9ba"
+     "96922e829a1e887928d8586c9f00aea89b1e844755dfe7144ddb3522fc23cb42"
+     "d00cf47ed0adcee416624d505967d492c29dc19de0062b70459c989ad1a6510b"
+     "90bb09f60d53935ad58e65e86f36080ca527e3a9e3851d74108963843db1326f"
+     "5bb66ba3b98499b0da06c23116c9f86d77843bffdd1cd010c32c7d34ba67e597"
+     "959879e742b16a6c291815d35bef4a3aafbd0db529ce260d4a1f3dc86c154eef"
+     "c640f23d88432f93914ff9e60289c70e9e4fd9ee6de55c5ea8a083e8980b1e1a"
+     "3a561040ac81bd71dd6301fa934a9f485047caa27ac149a2078c7b5ce9efb09b"
+     "494f95c67aa0a1e6f63fe7ca3ba04406ed927934a26ac6394334ced98ef214d1"
+     "1c5700a92ec3940be150d976e319eb747ef08929ebed2656b25f387794a153e2"
+     "dbedce6fa449ac9518245a0e41ab028abd0a70f4c54541f30f184e4369c3471a"
+     "670868b5ac3474e61ac0d57517ae1912a7a305bc283649063a662db4efdda17b"
+     "f703483ca7234fea9b761ea2c406bcda7135d89df1593fe14fe6882e80c1ada6"
+     "a09ae0566c7293b363b0c8c042081eab2c4127ee96c04ec7011b9627cf7f1c04"
+     "e4c75d03ba72f5686965a7b164dc0b6187f994d548451bef1068ef03ad43e510"
+     "ec7153fb7b49006884eb649c5ff299e518922dad1d6da657c09861a71afeb1e8"
+     "b9643487d54c5b6f83b3fa1fb64dd419433e6ca255a2f51b9fa562325145ccb2"
+     "891c69fa725840ca0336a15faa2f84fe2b02fab6c87eb8266223dab83e2572f6"
+     "ec0f046cddd6e0309d0420c2649f793294eef0bb3c7c9a4939287ae27e8efe3e"
+     "587f2ac20f383e0769b40eb8e2384b0f4155157f0ba5cd816bd44edbaa1816e9"
+     "a773d1be23ed92ced6ba63f261e0f8256bdac531ca2835c3301c50b33490e895"
+     "ea7e80076c3d256912ab1fd825a551a97e0d36a4ee069d83c61fb9b186b6cf16"
+     "02b63ebf992317c8f7baa696c797622289cb3f0824f603690dfdcebd28c87fe3"
+     "afc643a5537104f90a1675ba4518826c25005dd955c82a1253deddbda2283109"
+     "406df210526f6e86c7cb82a08d8db42cb5703de356e8d8ea15307d5b1bdc13f9"
+     "a713860237327e1877a00ae4d86fc2d72970f33b92180b52476432d186b9a1e3"
+     "914859deb77b5928a534e4839aec3d5e64764344c944b2e0219ff63092f4fc85"
+     "00026dabe7a174d3ea4c7e6d2f3c1d2d93098a4f48d7392e7d2fd56996eb7382"
+     "c2fe8298464ed2f7c54db5f50e5c02d1b186810342e0abb5dc56fcc438d34c8b"
+     "3978f735426f54d1dff97fbc2cd755a6bc19b62796613388ced06d414c25bdcd"
+     "7fa3f029214c2f8f993c68ba70c9e49fb9a4d82f4c1be76e4b4a1814c8441151"
+     "fdde57022127bd493abf479e6c12e13462973d5be9f1b8df152cc6bdd41e0438"
+     "c5c6d641767329992eb1b86f87ef45ca63141190f571692447bd9cc88d2e9f62"
+     "840364b105f4f6024d2a838b873ba833e49d058d4559135a22b4351d9934bcfe"
+     "8c4d9efce21d20194c8778b414115f1e8663236ca22b0cdf145d32fe563e4be4"
+     "5def3bbd06c9246980c4b4975e56febc187967ff39ce829ea63b3da1add47624"
+     "9922bca5f20a360696a00cf97c608847ef7c5eaaced85143077cce98969ac75b"
+     "80c80cd5ae8ca357c306a9e24392055893ca7f90cc71bef6cd69b1bc4b21f015"
+     "dfb1c8b5bfa040b042b4ef660d0aab48ef2e89ee719a1f24a4629a0c5ed769e8"
+     "e5494adf200eeff1505839672150dde6053e086869189c381b1ce9b792dda3a8"
+     default))
  '(helm-minibuffer-history-key "M-p")
  '(highlight-indent-guides-method 'character)
  '(js-indent-level 2)
+ '(lsp-headerline-breadcrumb-segments '(project file symbols))
  '(package-selected-packages
-   '(ron-mode colorful-mode terraform-mode auto-virtualenv mode-line-bell prolog-mode web-mode csv-mode magit dockerfile-mode racket-mode yaml-mode php-mode cuda-mode elpy python-black projectile pyvenv dotenv-mode evil-collection pdf-tools auctex-latexmk auctex-lua auctex lua-mode evil-surround highlight-indent-guides vimish-fold js2-mode prettier-js dap-mode lsp-java shell-pop mips-mode lsp-mode rust-mode winum treemacs-evil treemacs helm ido-vertical-mode evil))
+   '(auctex auctex-latexmk auctex-lua auto-virtualenv colorful-mode
+            csv-mode cuda-mode dap-mode dockerfile-mode dotenv-mode
+            elpy evil evil-collection evil-surround go-mode helm
+            highlight-indent-guides ido-vertical-mode js2-mode
+            lsp-java lsp-mode lua-mode magit mips-mode mode-line-bell
+            pdf-tools php-mode prettier-js projectile prolog-mode
+            puppet-mode python-black pyvenv racket-mode ron-mode
+            rust-mode shell-pop terraform-mode treemacs treemacs-evil
+            vimish-fold web-mode winum yaml-mode))
  '(prettier-js-args '("--tab-width 4"))
  '(warning-suppress-types '((comp))))
 (custom-set-faces
