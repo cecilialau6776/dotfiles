@@ -1,7 +1,7 @@
 #!/bin/sh
 
-mpc pause
-pactl set-sink-mute @DEFAULT_SINK@ 1
+# mpc pause
+# pactl set-sink-mute @DEFAULT_SINK@ 1
 
 BLANK='#00000000'
 CLEAR='#ffffff22'
