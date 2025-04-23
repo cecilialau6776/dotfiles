@@ -11,8 +11,10 @@ eclipse.jdt.ls
 games/
 autosaves/
 tree-sitter/
+semanticdb/
 bookmarks
 eln-cache/
 undo/
 emacs-livedown
 projetile-bookmarks.eld
+.dap-breakpoints
