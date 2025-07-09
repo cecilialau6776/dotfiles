@@ -290,17 +290,17 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 (require-package 'python-black)
 (add-to-list 'auto-mode-alist '("\\.py\\'" . python-ts-mode))
 (elpy-enable)
+(defun python-custom-save ()
+  (ignore-errors (py-isort-buffer))
+  (python-black-buffer))
+(add-hook 'elpy-mode-hook (lambda ()
+                            (add-hook 'before-save-hook
+                                      'python-custom-save)))
 (add-hook 'python-ts-mode-hook
           (lambda ()
             (setq-default tab-width 4)))
-;; (add-hook 'elpy-mode-hook (lambda ()
-;;                             (add-hook 'before-save-hook
-;;                                       'python-black-buffer nil t)))
 (add-hook 'python-ts-mode-hook #'elpy-mode)
 (add-hook 'python-ts-mode-hook 'auto-virtualenv-set-virtualenv)
-;; (add-hook 'before-save-hook (lambda()
-;;                               (when (eq 'python-ts-mode major-mode)
-;;                                 (py-isort-buffer))))
 
 ;; Java
 (require-package 'lsp-java)
@@ -473,7 +473,9 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
  ;; If there is more than one, they won't work right.
  '(auth-source-save-behavior nil)
  '(custom-safe-themes
-   '("fcff3bd64e1bcede13d527baae1ee4ce7b3dae1346495ff30fd17ee7d4781134"
+   '("c7de972928215fc1a25fe87f98f2ea2215e0666f032b24e3c2e6e4f601e35cc4"
+     "6ad331c9e610068f0d0a17eb4d4d21d9662e2cbd63e042cc69f7b976a23b3129"
+     "fcff3bd64e1bcede13d527baae1ee4ce7b3dae1346495ff30fd17ee7d4781134"
      "9dd5c7baf655ff549949a761ccec016091b2a4141d7c9105b05cf21f3d873f6a"
      "94172571752196ec37617e043eda3546a552a71bbe31c6eea2af19013ea14383"
      "14100afaf6ad421e6f7b7bda74fc58d52f5e8241272dd1621f8b77d18965fb47"

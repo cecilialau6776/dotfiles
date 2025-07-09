@@ -164,6 +164,8 @@
    (vterm-color-magenta :background magenta :foreground magenta)
    (vterm-color-green :background green :foreground green)
    (vterm-color-yellow :background yellow :foreground yellow)
+   (vterm-color-cyan :background cyan :foreground cyan)
+   (vterm-color-blue :background blue :foreground blue)
 
    ;;;; company
    (company-tooltip-common :foreground violet)
