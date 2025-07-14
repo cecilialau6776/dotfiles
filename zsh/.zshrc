@@ -1,18 +1,7 @@
 # Fix for TRAMP
 [ $TERM = "dumb" ] && unsetopt zle && PS1='$ ' && return
 
-if [[ -f "$HOME/.zshenv" ]]; then
-  source ~/.zshenv
-fi
-
-# If you come from bash you might have to change your $PATH.
-export PATH=$PATH:$HOME/.cargo/bin:$HOME/bin:/usr/local/bin:$HOME/.local/bin
 export EDITOR=vim
-
-# pnpm
-export PNPM_HOME="/home/pixel/.local/share/pnpm"
-export PATH="$PNPM_HOME:$PATH"
-# pnpm end
 
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/dotfiles/zsh/.oh-my-zsh"
@@ -124,6 +113,7 @@ command -v eza > /dev/null && alias ls="eza"
 command -v eza > /dev/null && alias sl="eza"
 command -v eza > /dev/null && alias l="eza -lah"
 command -v bat > /dev/null && alias cat="bat"
+alias showpath="echo $PATH | sed 's/:/\n/g'"
 alias nano="vim"
 alias vi="vim"
 alias code="vscodium"
