@@ -140,6 +140,7 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 (define-key treemacs-mode-map (kbd "SPC l") 'treemacs-next-workspace)
 (define-key treemacs-mode-map (kbd "SPC s") 'treemacs-switch-workspace)
 (define-key treemacs-mode-map (kbd "SPC e") 'treemacs-edit-workspaces)
+(define-key treemacs-mode-map (kbd "SPC '") 'shell-pop)
 (define-key evil-normal-state-map (kbd "SPC 0") 'treemacs)
 (define-key evil-normal-state-map (kbd "SPC SPC") 'helm-M-x)
 ;; window manipulaiton
