@@ -28,6 +28,7 @@ re-downloaded in order to locate PACKAGE."
 (global-undo-tree-mode)
 (with-eval-after-load 'undo-tree (defun undo-tree-overridden-undo-bindings-p () nil)) ;; because I overrode C-/ haha
 (evil-set-undo-system 'undo-tree)
+(setq undo-tree-history-directory-alist `(("." . ,(expand-file-name "~/.emacs.d/undo"))))
 (require-package 'evil-collection)
 (evil-collection-init)
 
@@ -92,14 +93,17 @@ re-downloaded in order to locate PACKAGE."
 (setq-default doc-view-resolution 200)
 (setq-default doc-view-continuous t)
 (prefer-coding-system 'utf-8)
-(setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo")))
 (define-coding-system-alias 'UTF-8 'utf-8)
+;; Put all auto saves here
+(setq auto-save-file-name-transforms
+  `((".*" "~/.emacs.d/auto-saves/" t)))
 ;; Colors in compilaiton window
 (require-package 'ansi-color)
 (setq ansi-color-for-compilation-mode t)
 (add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
 ;; Misc modes
 (require-package 'ron-mode)
+(require-package 'sudo-edit)
 
 
 ;; Shell-pop
@@ -130,7 +134,12 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 (define-key evil-motion-state-map (kbd "SPC") nil)
 (define-key evil-normal-state-map (kbd "SPC r c") (lambda() (interactive) (load-file "~/.emacs.d/init.el")))
+
+;; treemacs
 (define-key treemacs-mode-map (kbd "SPC 0") 'treemacs)
+(define-key treemacs-mode-map (kbd "SPC l") 'treemacs-next-workspace)
+(define-key treemacs-mode-map (kbd "SPC s") 'treemacs-switch-workspace)
+(define-key treemacs-mode-map (kbd "SPC e") 'treemacs-edit-workspaces)
 (define-key evil-normal-state-map (kbd "SPC 0") 'treemacs)
 (define-key evil-normal-state-map (kbd "SPC SPC") 'helm-M-x)
 ;; window manipulaiton
@@ -290,12 +299,9 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 (require-package 'python-black)
 (add-to-list 'auto-mode-alist '("\\.py\\'" . python-ts-mode))
 (elpy-enable)
-(defun python-custom-save ()
-  (ignore-errors (py-isort-buffer))
-  (python-black-buffer))
-(add-hook 'elpy-mode-hook (lambda ()
-                            (add-hook 'before-save-hook
-                                      'python-custom-save)))
+(add-hook 'before-save-hook (lambda()
+                              (when (eq 'elpy-mode-hook major-mode)
+                                (elpy-format-code))))
 (add-hook 'python-ts-mode-hook
           (lambda ()
             (setq-default tab-width 4)))
@@ -551,8 +557,8 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
             lsp-java lsp-mode lua-mode magit mips-mode mode-line-bell
             pdf-tools php-mode prettier-js projectile prolog-mode
             puppet-mode python-black pyvenv racket-mode ron-mode
-            rust-mode shell-pop terraform-mode treemacs treemacs-evil
-            vimish-fold web-mode winum yaml-mode))
+            rust-mode shell-pop sudo-edit terraform-mode treemacs
+            treemacs-evil vimish-fold web-mode winum yaml-mode))
  '(prettier-js-args '("--tab-width 4"))
  '(warning-suppress-types '((comp))))
 (custom-set-faces

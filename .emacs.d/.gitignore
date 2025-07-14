@@ -15,6 +15,7 @@ semanticdb/
 bookmarks
 eln-cache/
 undo/
+auto-saves/
 emacs-livedown
-projetile-bookmarks.eld
+projectile-bookmarks.eld
 .dap-breakpoints
