@@ -1,6 +1,7 @@
-(scroll-bar-mode -1)
+(when (display-graphic-p)
+  (scroll-bar-mode -1)
+  (tool-bar-mode -1))
 (menu-bar-mode -1)
-(tool-bar-mode -1)
 
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
@@ -30,7 +31,7 @@ re-downloaded in order to locate PACKAGE."
 (evil-set-undo-system 'undo-tree)
 (setq undo-tree-history-directory-alist `(("." . ,(expand-file-name "~/.emacs.d/undo"))))
 (require-package 'evil-collection)
-(evil-collection-init)
+;; (evil-collection-init)
 
 
 ;; Indents
@@ -57,11 +58,9 @@ re-downloaded in order to locate PACKAGE."
 (global-set-key (kbd "M-x") 'helm-M-x)
 (add-hook 'helm-after-initialize-hook
           (lambda()
-            ;; (define-key helm-buffer-map (kbd "M-m") 'helm-toggle-all-marks)
-            ;; (define-key helm-buffer-map (kbd "M-d") 'helm-buffer-run-kill-buffers)
-            (define-key helm-buffer-map (kbd "ESC") 'helm-keyboard-quit)
-            (define-key helm-M-x-map (kbd "ESC") 'helm-keyboard-quit)
-            (define-key helm-map (kbd "ESC") 'helm-keyboard-quit)
+            (define-key helm-buffer-map (kbd "<escape>") 'helm-keyboard-quit)
+            (define-key helm-M-x-map (kbd "<escape>") 'helm-keyboard-quit)
+            (define-key helm-map (kbd "<escape>") 'helm-keyboard-quit)
             ))
 
 
@@ -167,6 +166,7 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 (define-key evil-normal-state-map (kbd "SPC c r") 'recompile)
 (define-key evil-normal-state-map (kbd "SPC c k") 'kill-compilation)
 (define-key evil-normal-state-map (kbd "C-/") 'comment-dwim-line)
+(define-key evil-normal-state-map (kbd "C-_") 'comment-dwim-line)
 (define-key evil-normal-state-map (kbd "C-SPC") 'lsp-execute-code-action)
 (define-key evil-normal-state-map (kbd "SPC c c") (lambda()
                                                     (interactive)
@@ -299,6 +299,7 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 
 ;; Python
 ;; (require-package 'elpy)
+;; (require-package 'projectile) ; auto-virtualenv dependency
 ;; (require-package 'auto-virtualenv)
 ;; (require-package 'py-isort)
 ;; (require-package 'python-black)
@@ -515,6 +516,10 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 ;; Projectile
 (require-package 'projectile)
 (setq projectile-globally-ignored-file-suffixes '(".png" ".gif" ".pdf"  "*.class"))
+
+;; Emacs in kitty
+(require-package 'kkp)
+(global-kkp-mode)
 
 
 (custom-set-variables
