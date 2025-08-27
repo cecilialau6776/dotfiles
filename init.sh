@@ -13,7 +13,7 @@ mkdir -p $HOME/.config/ncmpcpp/lyrics
 # make symlinks
 ln -s $HOME/dotfiles/zsh/.zshrc $HOME/.zshrc
 ln -s $HOME/dotfiles/.tmux.conf $HOME/.tmux.conf
-ln -s $HOME/dotfiles/.emacs.d/ $HOME/.emacs.d
+ln -s $HOME/dotfiles/.emacs.d $HOME/.emacs.d
 ln -s $HOME/dotfiles/git/gitconfig $HOME/.gitconfig
 ln -s $HOME/dotfiles/mpd/mpd.conf $HOME/.config/mpd/mpd.conf
 ln -s $HOME/dotfiles/ncmpcpp/bindings $HOME/.config/ncmpcpp/bindings
