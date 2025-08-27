@@ -45,7 +45,6 @@ re-downloaded in order to locate PACKAGE."
 (setq-default lua-indent-level 4)
 (setq-default c-default-style "linux")
 
-
 ;; Treemacs
 (require-package 'treemacs-evil)
 (setq treemacs-default-visit-action 'treemacs-visit-node-close-treemacs)
@@ -58,6 +57,8 @@ re-downloaded in order to locate PACKAGE."
 (global-set-key (kbd "M-x") 'helm-M-x)
 (add-hook 'helm-after-initialize-hook
           (lambda()
+            ;; (define-key helm-buffer-map (kbd "M-m") 'helm-toggle-all-marks)
+            ;; (define-key helm-buffer-map (kbd "M-d") 'helm-buffer-run-kill-buffers)
             (define-key helm-buffer-map (kbd "ESC") 'helm-keyboard-quit)
             (define-key helm-M-x-map (kbd "ESC") 'helm-keyboard-quit)
             (define-key helm-map (kbd "ESC") 'helm-keyboard-quit)
@@ -161,6 +162,7 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 (define-key evil-normal-state-map (kbd "SPC b d") 'evil-delete-buffer)
 (define-key evil-normal-state-map (kbd "SPC b h") 'previous-buffer)
 (define-key evil-normal-state-map (kbd "SPC b l") 'next-buffer)
+(define-key evil-normal-state-map (kbd "SPC b r") 'rename-buffer)
 ;; code
 (define-key evil-normal-state-map (kbd "SPC c r") 'recompile)
 (define-key evil-normal-state-map (kbd "SPC c k") 'kill-compilation)
@@ -184,10 +186,13 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 (define-key evil-ex-completion-map (kbd "C-v") 'evil-paste-after)
 (define-key minibuffer-local-map (kbd "C-S-v") 'evil-paste-after)
 (define-key minibuffer-local-map (kbd "C-v") 'evil-paste-after)
+(define-key minibuffer-local-must-match-map (kbd "C-n") 'next-line-or-history-element)
+(define-key minibuffer-local-must-match-map (kbd "C-p") 'previous-line-or-history-element)
 ;; misc
 (define-key evil-normal-state-map (kbd "SPC f a") 'flyspell-auto-correct-word)
 (define-key evil-normal-state-map (kbd "SPC e r") 'eval-region)
 (define-key evil-normal-state-map (kbd "SPC '") 'shell-pop)
+(define-key evil-insert-state-map (kbd "TAB") 'tab-to-tab-stop)
 (define-key evil-normal-state-map (kbd "(") 'treesit-beginning-of-defun)
 (define-key evil-normal-state-map (kbd ")") 'treesit-end-of-defun)
 (define-key evil-visual-state-map (kbd "(") 'treesit-beginning-of-defun)
@@ -213,7 +218,9 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 ;; LSP & Company
 (setq company-idle-delay 1
       company-minimum-prefix-length 0)
+;; (setq lsp-keymap-prefix "SPC l")
 (require-package 'lsp-mode)
+;; (define-key lsp-mode-map (kbd "SPC l") lsp-command-map)
 (require-package 'lsp-ui)
 (require-package 'flycheck)
 (require-package 'company)
@@ -221,13 +228,7 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 (require-package 'yasnippet)
 (global-flycheck-mode)
 (yas-global-mode)
-;; LSP over TRAMP
-(lsp-register-client
-    (make-lsp-client :new-connection (lsp-tramp-connection "pylsp")
-                     :major-modes '(python-ts-mode)
-                     :remote? t
-                     :server-id 'pylsp-remote))
-;; (evil-define-key 'normal lsp-mode-map (kbd "SPC l") lsp-command-map)
+(evil-define-key 'normal lsp-mode-map (kbd "SPC l") lsp-command-map)
 (evil-define-minor-mode-key 'normal lsp-mode (kbd "SPC l") lsp-command-map)
 (add-hook 'rust-ts-mode-hook #'lsp)
 (add-hook 'elpy-mode-hook #'lsp)
@@ -243,6 +244,12 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 (add-hook 'go-ts-mode-hook #'lsp)
 (add-hook 'markdown-mode-hook #'flyspell-mode)
 
+
+;; TRAMP
+(setq tramp-use-connection-share 'suppress)
+(setq shell-file-name "/bin/bash")
+
+
 ;; Rust
 (require-package 'rust-mode)
 (add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-ts-mode))
@@ -253,15 +260,12 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
                               (when (eq 'rust-ts-mode major-mode)
                                 (lsp-format-buffer))))
 (add-hook 'rust-ts-mode-hook (lambda()
-                               (define-key evil-normal-state-map
-                                           (kbd "SPC c l")
-                                           'rust-run-clippy)
-                               (define-key evil-normal-state-map
-                                           (kbd "SPC c r")
-                                           'rust-run)
-                               (define-key evil-normal-state-map
-                                           (kbd "SPC c R")
-                                           'rust-run-release)
+                               (local-set-key (kbd "SPC c l")
+                                              'rust-run-clippy)
+                               (local-set-key (kbd "SPC c r")
+                                              'rust-run)
+                               (local-set-key (kbd "SPC c R")
+                                              'rust-run-release)
                                ))
 
 ;; C :)
@@ -294,20 +298,57 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 (add-hook 'terraform-mode 'terraform-format-on-save-mode)
 
 ;; Python
-(require-package 'elpy)
-(require-package 'auto-virtualenv)
-(require-package 'py-isort)
-(require-package 'python-black)
+;; (require-package 'elpy)
+;; (require-package 'auto-virtualenv)
+;; (require-package 'py-isort)
+;; (require-package 'python-black)
 (add-to-list 'auto-mode-alist '("\\.py\\'" . python-ts-mode))
-(elpy-enable)
-(add-hook 'before-save-hook (lambda()
-                              (when (eq 'elpy-mode-hook major-mode)
-                                (elpy-format-code))))
+;; (eval-after-load "company"
+;; '(add-to-list 'company-backends 'company-anaconda))
+(add-hook 'before-save-hook (lambda ()
+                              (when (eq 'python-ts-mode major-mode)
+                                (lsp-format-buffer))))
 (add-hook 'python-ts-mode-hook
           (lambda ()
             (setq-default tab-width 4)))
-(add-hook 'python-ts-mode-hook #'elpy-mode)
-(add-hook 'python-ts-mode-hook 'auto-virtualenv-set-virtualenv)
+(add-to-list 'lsp-disabled-clients 'pylsp)
+;; ruff over TRAMP
+;; (add-to-list 'lsp-disabled-clients 'ruff)
+;; (add-to-list 'lsp-disabled-clients 'ruff-tramp)
+;; (add-to-list 'lsp-disabled-clients 'ty-ls)
+;; (add-to-list 'lsp-disabled-clients 'ty-ls-tramp)
+(lsp-register-client
+ (make-lsp-client :new-connection (lsp-tramp-connection
+                                   (lambda () (append lsp-ruff-server-command lsp-ruff-ruff-args)))
+                  :major-modes '(python-ts-mode)
+                  :multi-root t
+                  :remote? t
+                  :add-on? t
+                  :uri->path-fn (lambda (x)
+                                  (nth 2 (split-string x ":")))
+                  :server-id 'ruff-tramp))
+;; ty over TRAMP
+(lsp-register-client
+ (make-lsp-client :new-connection (lsp-stdio-connection
+                                   (lambda () lsp-python-ty-clients-server-command))
+                  :major-modes '(python-ts-mode)
+                  :multi-root t
+                  :remote? t
+                  :add-on? t
+                  :server-id 'ty-ls-tramp))
+(lsp-register-client
+ (make-lsp-client :new-connection (lsp-stdio-connection
+                                   (lambda () lsp-python-ty-clients-server-command))
+                  :activation-fn (lsp-activate-on "python")
+                  :priority -1
+                  :add-on? t
+                  :server-id 'ty-ls))
+(add-hook 'python-ts-mode-hook #'lsp)
+(add-hook 'lsp-mode-hook
+          (lambda ()
+            (when (eq 'python-ts-mode major-mode)
+              (setq lsp-diagnostics-provider :none))))
+;; (add-hook 'python-ts-mode-hook 'auto-virtualenv-set-virtualenv)
 
 ;; Java
 (require-package 'lsp-java)
@@ -356,7 +397,7 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 (require-package 'rjsx-mode)
 (require-package 'prettier-js)
 (add-to-list 'auto-mode-alist '("\\.js\\'" . rjsx-mode))
-(add-hook 'js-mode-hook 'prettier-js-mode)
+;; (add-hook 'js-mode-hook 'prettier-js-mode)
 
 ;; React
 (require-package 'typescript-mode)
@@ -385,7 +426,7 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
                              (_ ()))))
 (flycheck-add-mode 'typescript-tslint 'web-mode)
 (add-hook 'web-mode-hook 'company-mode)
-(add-hook 'web-mode-hook 'prettier-js-mode)
+;; (add-hook 'web-mode-hook 'prettier-js-mode)
 ;; (add-hook 'web-mode-hook #'turn-on-smartparens-mode t)
 
 ;; HTML formatting
@@ -395,9 +436,8 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 (add-hook 'latex-mode-hook #'flyspell-mode)
 (add-hook 'latex-mode-hook #'word-wrap-whitespace-mode)
 (add-hook 'TeX-mode-hook (lambda()
-                           (define-key evil-normal-state-map
-                                       (kbd "SPC c r")
-                                       'TeX-command-run-all)))
+                           (local-set-key (kbd "SPC c r")
+                                          'TeX-command-run-all)))
 
 ;; Matlab use octave mode
 (add-to-list 'auto-mode-alist '("\\.m\\'" . octave-mode))
@@ -472,6 +512,10 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 (semantic-mode 1)
 (require-package 'stickyfunc-enhance)
 
+;; Projectile
+(require-package 'projectile)
+(setq projectile-globally-ignored-file-suffixes '(".png" ".gif" ".pdf"  "*.class"))
+
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -480,7 +524,9 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
  ;; If there is more than one, they won't work right.
  '(auth-source-save-behavior nil)
  '(custom-safe-themes
-   '("c7de972928215fc1a25fe87f98f2ea2215e0666f032b24e3c2e6e4f601e35cc4"
+   '("e34c6ff1b5a1b78ef6a49fba8a98cf20c3a56ad825aa517354e43c281e4cd646"
+     "5938d2792c97b146b55b4cae8f45c3642aedb955133cb3d1f81e13d80750263a"
+     "c7de972928215fc1a25fe87f98f2ea2215e0666f032b24e3c2e6e4f601e35cc4"
      "6ad331c9e610068f0d0a17eb4d4d21d9662e2cbd63e042cc69f7b976a23b3129"
      "fcff3bd64e1bcede13d527baae1ee4ce7b3dae1346495ff30fd17ee7d4781134"
      "9dd5c7baf655ff549949a761ccec016091b2a4141d7c9105b05cf21f3d873f6a"
@@ -552,14 +598,15 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
  '(lsp-headerline-breadcrumb-segments '(project file symbols))
  '(package-selected-packages
    '(auctex auctex-latexmk auctex-lua auto-virtualenv colorful-mode
-            csv-mode cuda-mode dap-mode dockerfile-mode dotenv-mode
-            elpy evil evil-collection evil-surround go-mode helm
-            highlight-indent-guides ido-vertical-mode js2-mode
-            lsp-java lsp-mode lua-mode magit mips-mode mode-line-bell
-            pdf-tools php-mode prettier-js projectile prolog-mode
-            puppet-mode python-black pyvenv racket-mode ron-mode
-            rust-mode shell-pop sudo-edit terraform-mode treemacs
-            treemacs-evil vimish-fold web-mode winum yaml-mode))
+            company-anaconda csv-mode cuda-mode dap-mode
+            dockerfile-mode dotenv-mode elpy evil evil-collection
+            evil-surround go-mode helm highlight-indent-guides
+            ido-vertical-mode js2-mode lsp-java lsp-mode lua-mode
+            magit mips-mode mode-line-bell pdf-tools php-mode
+            prettier-js projectile prolog-mode puppet-mode
+            python-black pyvenv racket-mode ron-mode rust-mode
+            shell-pop sudo-edit terraform-mode treemacs treemacs-evil
+            vimish-fold web-mode winum yaml-mode))
  '(prettier-js-args '("--tab-width 4"))
  '(warning-suppress-types '((comp))))
 (custom-set-faces
@@ -569,4 +616,4 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
  ;; If there is more than one, they won't work right.
  '(flymake-warning ((t (:underline (:color "yellow" :style wave))))))
 
-(find-file "~/notes.md")
+(find-file "~/notes/notes.md")
