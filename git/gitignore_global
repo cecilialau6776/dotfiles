@@ -52,3 +52,6 @@ flycheck_*.el
 # .flake8
 .venv/
 venv/
+
+# pre-commit config
+.pre-commit-config.yaml
