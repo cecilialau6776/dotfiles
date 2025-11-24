@@ -21,6 +21,8 @@ re-downloaded in order to locate PACKAGE."
         (package-refresh-contents)
         (require-package package min-version t)))))
 
+(require 'cl-lib)
+
 ;; Evil
 (setq evil-want-keybinding nil)
 (require-package 'evil)
@@ -31,7 +33,7 @@ re-downloaded in order to locate PACKAGE."
 (evil-set-undo-system 'undo-tree)
 (setq undo-tree-history-directory-alist `(("." . ,(expand-file-name "~/.emacs.d/undo"))))
 (require-package 'evil-collection)
-;; (evil-collection-init)
+(evil-collection-init)
 
 
 ;; Indents
@@ -133,7 +135,7 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 ;; Keybinds
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 (define-key evil-motion-state-map (kbd "SPC") nil)
-(define-key evil-normal-state-map (kbd "SPC r c") (lambda() (interactive) (load-file "~/.emacs.d/init.el")))
+;; (define-key evil-normal-state-map (kbd "SPC r c") (lambda() (interactive) (load-file "~/.emacs.d/init.el")))
 
 ;; treemacs
 (define-key treemacs-mode-map (kbd "SPC 0") 'treemacs)
@@ -176,6 +178,12 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
                                                     (indent-region (point-min) (point-max) nil)))
 
 (define-key evil-normal-state-map (kbd "?") 'lsp-ui-doc-glance)
+;; (define-key evil-normal-state-map (kbd "TAB") 'lsp-ui-doc-toggle)
+(define-key evil-normal-state-map (kbd "TAB") (lambda()
+                                                (interactive)
+                                                (if (not (frame-parameter (lsp-ui-doc--get-frame) 'lsp-ui-doc--no-focus))
+                                                      (lsp-ui-doc-unfocus-frame)
+                                                  (lsp-ui-doc-focus-frame))))
 ;; flycheck
 (define-key evil-normal-state-map (kbd "SPC f l") 'flycheck-list-errors)
 (define-key evil-normal-state-map (kbd "SPC f n") 'flycheck-next-error)
@@ -260,11 +268,11 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
                               (when (eq 'rust-ts-mode major-mode)
                                 (lsp-format-buffer))))
 (add-hook 'rust-ts-mode-hook (lambda()
-                               (local-set-key (kbd "SPC c l")
+                               (keymap-local-set (kbd "SPC c l")
                                               'rust-run-clippy)
-                               (local-set-key (kbd "SPC c r")
+                               (keymap-local-set (kbd "SPC c r")
                                               'rust-run)
-                               (local-set-key (kbd "SPC c R")
+                               (keymap-local-set (kbd "SPC c R")
                                               'rust-run-release)
                                ))
 
@@ -298,14 +306,7 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 (add-hook 'terraform-mode 'terraform-format-on-save-mode)
 
 ;; Python
-;; (require-package 'elpy)
-;; (require-package 'projectile) ; auto-virtualenv dependency
-;; (require-package 'auto-virtualenv)
-;; (require-package 'py-isort)
-;; (require-package 'python-black)
 (add-to-list 'auto-mode-alist '("\\.py\\'" . python-ts-mode))
-;; (eval-after-load "company"
-;; '(add-to-list 'company-backends 'company-anaconda))
 (add-hook 'before-save-hook (lambda ()
                               (when (eq 'python-ts-mode major-mode)
                                 (lsp-format-buffer))))
@@ -329,26 +330,33 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
                                   (nth 2 (split-string x ":")))
                   :server-id 'ruff-tramp))
 ;; ty over TRAMP
-(lsp-register-client
- (make-lsp-client :new-connection (lsp-stdio-connection
-                                   (lambda () lsp-python-ty-clients-server-command))
-                  :major-modes '(python-ts-mode)
-                  :multi-root t
-                  :remote? t
-                  :add-on? t
-                  :server-id 'ty-ls-tramp))
+;; (lsp-register-client
+;;  (make-lsp-client :new-connection (lsp-stdio-connection
+;;                                    (lambda () lsp-python-ty-clients-server-command))
+;;                   :major-modes '(python-ts-mode)
+;;                   :multi-root t
+;;                   :remote? t
+;;                   :add-on? t
+;;                   :server-id 'ty-ls-tramp))
+(lsp-register-custom-settings
+ '(("ty.experimental.rename" t)))
 (lsp-register-client
  (make-lsp-client :new-connection (lsp-stdio-connection
                                    (lambda () lsp-python-ty-clients-server-command))
                   :activation-fn (lsp-activate-on "python")
                   :priority -1
                   :add-on? t
+                  ;; :custom-capabilities `((experimental . ((rename . t))))
+                  ;; :custom-capabilities `((workspaceSymbolProvider . ((rename . t))))
                   :server-id 'ty-ls))
 (add-hook 'python-ts-mode-hook #'lsp)
 (add-hook 'lsp-mode-hook
           (lambda ()
             (when (eq 'python-ts-mode major-mode)
-              (setq lsp-diagnostics-provider :none))))
+              ;; (setq lsp-diagnostics-provider :none)
+              (setq company-idle-delay 0)
+              (hs-minor-mode)
+              )))
 ;; (add-hook 'python-ts-mode-hook 'auto-virtualenv-set-virtualenv)
 
 ;; Java
@@ -404,6 +412,11 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 (require-package 'typescript-mode)
 (require-package 'web-mode)
 (require-package 'tide)
+(setq web-mode-markup-indent-offset 4)
+(setq web-mode-css-indent-offset 4)
+(setq web-mode-code-indent-offset 4)
+(setq web-mode-attr-indent-offset 4)
+(setq web-mode-attr-value-indent-offset 4)
 (defun setup-tide-mode ()
   (interactive)
   (tide-setup)
@@ -419,7 +432,7 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
   (company-mode +1))
 (setq company-tooltip-align-annotations t)
 (add-hook 'before-save-hook 'tide-format-before-save)
-(add-hook 'typescript-mode-hook #'setup-tide-mode)
+(add-hook 'typescript-ts-mode-hook #'setup-tide-mode)
 (add-hook 'rjsx-mode-hook 'tide-setup-hook)
 (add-hook 'web-mode-hook (lambda()
                            (pcase (file-name-extension buffer-file-name)
@@ -427,11 +440,19 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
                              (_ ()))))
 (flycheck-add-mode 'typescript-tslint 'web-mode)
 (add-hook 'web-mode-hook 'company-mode)
-;; (add-hook 'web-mode-hook 'prettier-js-mode)
-;; (add-hook 'web-mode-hook #'turn-on-smartparens-mode t)
 
 ;; HTML formatting
 (add-to-list 'auto-mode-alist '("\\.html\\'" . web-mode))
+(add-hook 'web-mode-hook (lambda()
+                           (pcase (file-name-extension buffer-file-name)
+                             ("html" (lambda()
+                                       (setq web-mode-markup-indent-offset 4)
+                                       (setq web-mode-css-indent-offset 4)
+                                       (setq web-mode-code-indent-offset 4)
+                                       (setq web-mode-attr-indent-offset 4)
+                                       (setq web-mode-attr-value-indent-offset 4)))
+                             (_ ()))))
+
 
 ;; LaTeX
 (add-hook 'latex-mode-hook #'flyspell-mode)
@@ -468,7 +489,21 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 (define-key evil-normal-state-map (kbd "z r") 'vimish-fold-refold)
 (define-key evil-normal-state-map (kbd "z u") 'vimish-fold-unfold)
 (define-key evil-normal-state-map (kbd "z d") 'vimish-fold-delete)
-(define-key evil-normal-state-map (kbd "z z") 'vimish-fold-toggle)
+(define-key evil-normal-state-map (kbd "z l") 'hs-hide-level)
+(define-key evil-normal-state-map (kbd "z z")
+            (lambda ()
+              (interactive)
+              (when (not (cl-some
+                          #'identity
+                          (mapcar
+                           #'(lambda (overlay)
+                               (when (vimish-fold--vimish-overlay-p overlay)
+                                 (vimish-fold--toggle overlay)
+                                 't))
+                           (overlays-at (point)))))
+                (hs-toggle-hiding)
+                )))
+
 
 ;; Indent highlight guides
 (require-package 'highlight-indent-guides)
@@ -602,16 +637,18 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
  '(js-indent-level 2)
  '(lsp-headerline-breadcrumb-segments '(project file symbols))
  '(package-selected-packages
-   '(auctex auctex-latexmk auctex-lua auto-virtualenv colorful-mode
-            company-anaconda csv-mode cuda-mode dap-mode
-            dockerfile-mode dotenv-mode elpy evil evil-collection
-            evil-surround go-mode helm highlight-indent-guides
-            ido-vertical-mode js2-mode lsp-java lsp-mode lua-mode
-            magit mips-mode mode-line-bell pdf-tools php-mode
-            prettier-js projectile prolog-mode puppet-mode
-            python-black pyvenv racket-mode ron-mode rust-mode
-            shell-pop sudo-edit terraform-mode treemacs treemacs-evil
-            vimish-fold web-mode winum yaml-mode))
+   '(auctex-latexmk auctex-lua auto-complete auto-virtualenv cl
+                    colorful-mode company-anaconda csv-mode cuda-mode
+                    dockerfile-mode doom-themes dotenv-mode elpy
+                    evil-collection evil-surround go-mode helm
+                    highlight-indent-guides javap-mode kkp lsp-java
+                    lsp-mode lsp-ui magit mips-mode pdf-tools php-mode
+                    prettier-js projectile puppet-mode py-isort
+                    python-black python-mode racket-mode rjsx-mode
+                    ron-mode rust-mode shell-pop spinner sqlformat
+                    stickyfunc-enhance sudo-edit terraform-mode tide
+                    treemacs-evil typescript-mode undo-tree
+                    vimish-fold vterm web-mode winum yaml-mode))
  '(prettier-js-args '("--tab-width 4"))
  '(warning-suppress-types '((comp))))
 (custom-set-faces
