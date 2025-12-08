@@ -83,6 +83,8 @@ re-downloaded in order to locate PACKAGE."
 ;; Misc
 (global-auto-revert-mode t)
 (require-package 'vterm)
+(evil-collection-define-key 'insert 'vterm-mode-map
+  (kbd "TAB") 'vterm-send-tab)
 (setq vterm-shell 'zsh)
 (setq evil-symbol-word-search t)
 (setq inhibit-startup-screen t)
@@ -514,6 +516,7 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
         `(("." . ,(concat user-emacs-directory "autosaves"))))
 
 ;; Treesitter
+;; (mapc #'treesit-install-language-grammar (mapcar #'car treesit-language-source-alist))
 (setq treesit-language-source-alist
    '((bash "https://github.com/tree-sitter/tree-sitter-bash")
      (cmake "https://github.com/uyha/tree-sitter-cmake")
