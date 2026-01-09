@@ -4,6 +4,7 @@
 [core]
 	editor = vim
 	excludesFile = ~/dotfiles/git/gitignore_global
+	pager = ~/dotfiles/diff-so-fancy/diff-so-fancy | less --tabs=4 -RFX
 [submodule]
 	recurse = true
 [init]
@@ -12,3 +13,5 @@
 lg1 = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(auto)%d%C(reset)' --all
 lg2 = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(auto)%d%C(reset)%n''          %C(white)%s%C(reset) %C(dim white)- %an%C(reset)'
 lg = lg1
+[interactive]
+	diffFilter = ~/dotfiles/diff-so-fancy/diff-so-fancy --patch
