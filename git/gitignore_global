@@ -42,7 +42,7 @@ flycheck_*.el
 .projectile
 
 # directory configuration
-.dir-locals.el
+.dir_locals.el
 
 # for my cursed testing scripts
 .pixel_compile.sh
