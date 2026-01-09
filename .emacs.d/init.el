@@ -178,6 +178,11 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 (define-key evil-normal-state-map (kbd "SPC c i") (lambda()
                                                     (interactive)
                                                     (indent-region (point-min) (point-max) nil)))
+;; smerge
+(define-key evil-normal-state-map (kbd "SPC c n") 'smerge-next)
+(define-key evil-normal-state-map (kbd "SPC c p") 'smerge-prev)
+(define-key evil-normal-state-map (kbd "SPC c l") 'smerge-keep-lower)
+(define-key evil-normal-state-map (kbd "SPC c u") 'smerge-keep-upper)
 
 (define-key evil-normal-state-map (kbd "?") 'lsp-ui-doc-glance)
 ;; (define-key evil-normal-state-map (kbd "TAB") 'lsp-ui-doc-toggle)
@@ -243,7 +248,7 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 (add-hook 'rust-ts-mode-hook #'lsp)
 (add-hook 'elpy-mode-hook #'lsp)
 (add-hook 'java-ts-mode-hook #'lsp)
-(add-hook 'js2-mode-hook #'lsp)
+(add-hook 'js-ts-mode-hook #'lsp)
 (add-hook 'prolog-mode-hook #'lsp)
 (add-hook 'web-mode-hook #'lsp)
 (add-hook 'csharp-mode-hook #'lsp)
@@ -257,7 +262,8 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 
 ;; TRAMP
 (setq tramp-use-connection-share 'suppress)
-(setq shell-file-name "/bin/bash")
+(setq shell-file-name "/bin/sh")
+(add-to-list 'tramp-remote-path 'tramp-own-remote-path)
 
 
 ;; Rust
@@ -316,46 +322,26 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
           (lambda ()
             (setq-default tab-width 4)))
 (add-to-list 'lsp-disabled-clients 'pylsp)
-;; ruff over TRAMP
-;; (add-to-list 'lsp-disabled-clients 'ruff)
-;; (add-to-list 'lsp-disabled-clients 'ruff-tramp)
-;; (add-to-list 'lsp-disabled-clients 'ty-ls)
-;; (add-to-list 'lsp-disabled-clients 'ty-ls-tramp)
-(lsp-register-client
- (make-lsp-client :new-connection (lsp-tramp-connection
-                                   (lambda () (append lsp-ruff-server-command lsp-ruff-ruff-args)))
-                  :major-modes '(python-ts-mode)
-                  :multi-root t
-                  :remote? t
-                  :add-on? t
-                  :uri->path-fn (lambda (x)
-                                  (nth 2 (split-string x ":")))
-                  :server-id 'ruff-tramp))
-;; ty over TRAMP
+;; https://github.com/emacs-lsp/lsp-mode/issues/2709 :(
+(add-to-list 'lsp-disabled-clients 'ruff-tramp)
+(add-to-list 'lsp-disabled-clients 'ty-ls-tramp)
+
+(lsp-register-custom-settings
+ '(("ty.experimental.rename" t)))
+
 ;; (lsp-register-client
 ;;  (make-lsp-client :new-connection (lsp-stdio-connection
 ;;                                    (lambda () lsp-python-ty-clients-server-command))
-;;                   :major-modes '(python-ts-mode)
-;;                   :multi-root t
-;;                   :remote? t
+;;                   :activation-fn (lsp-activate-on "python")
+;;                   :priority -1
 ;;                   :add-on? t
-;;                   :server-id 'ty-ls-tramp))
-(lsp-register-custom-settings
- '(("ty.experimental.rename" t)))
-(lsp-register-client
- (make-lsp-client :new-connection (lsp-stdio-connection
-                                   (lambda () lsp-python-ty-clients-server-command))
-                  :activation-fn (lsp-activate-on "python")
-                  :priority -1
-                  :add-on? t
-                  ;; :custom-capabilities `((experimental . ((rename . t))))
-                  ;; :custom-capabilities `((workspaceSymbolProvider . ((rename . t))))
-                  :server-id 'ty-ls))
+;;                   :server-id 'ty-ls))
+
 (add-hook 'python-ts-mode-hook #'lsp)
 (add-hook 'lsp-mode-hook
           (lambda ()
             (when (eq 'python-ts-mode major-mode)
-              ;; (setq lsp-diagnostics-provider :none)
+              (setq lsp-diagnostics-provider :none)
               (setq company-idle-delay 0)
               (hs-minor-mode)
               )))
@@ -407,7 +393,7 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 ;; (require-package 'js2-mode)
 (require-package 'rjsx-mode)
 (require-package 'prettier-js)
-(add-to-list 'auto-mode-alist '("\\.js\\'" . rjsx-mode))
+(add-to-list 'auto-mode-alist '("\\.js\\'" . js-ts-mode))
 ;; (add-hook 'js-mode-hook 'prettier-js-mode)
 
 ;; React
@@ -454,6 +440,10 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
                                        (setq web-mode-attr-indent-offset 4)
                                        (setq web-mode-attr-value-indent-offset 4)))
                              (_ ()))))
+(add-hook 'before-save-hook (lambda()
+                              (pcase (file-name-extension buffer-file-name)
+                                ("html" (web-mode-buffer-indent))
+                                (_ ()))))
 
 
 ;; LaTeX
@@ -650,7 +640,7 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
                     python-black python-mode racket-mode rjsx-mode
                     ron-mode rust-mode shell-pop spinner sqlformat
                     stickyfunc-enhance sudo-edit terraform-mode tide
-                    treemacs-evil typescript-mode undo-tree
+                    tramp treemacs-evil typescript-mode undo-tree
                     vimish-fold vterm web-mode winum yaml-mode))
  '(prettier-js-args '("--tab-width 4"))
  '(warning-suppress-types '((comp))))
